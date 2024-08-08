@@ -1,0 +1,17 @@
+matplotlib
+medpy
+meshio
+numpy
+numpy_stl
+pandas
+scikit-image
+scikit-learn
+scipy
+SimpleITK
+tomli
+tensorboard
+tensorboard-data-server
+tensorflow
+tensorflow-io-gcs-filesystem
+keras_unet
+h5py

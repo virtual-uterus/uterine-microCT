@@ -1,0 +1,3 @@
+sets=["AWA015"]
+horn=["left", "right"]
+nb_points=128

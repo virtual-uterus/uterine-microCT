@@ -1,0 +1,29 @@
+# Ignore data folder
+data/
+
+# Ignore python swp and cache
+code/p_scripts/*.swp
+code/p_scripts/__pycache__
+code/p_scripts/*.log
+code/thickness_analysis/*.swp
+code/thickness_analysis/__pycache__
+code/tests/*.swp
+code/tests/__pycache__
+code/utils/*.swp
+code/utils/__pycache__
+
+# Ignore com swp files
+com/*.swp
+
+# Ignore asv files
+code/m_scripts/*.asv
+code/segmentation/*.asv
+code/utils/*.asv
+code/structure_tensor/*.asv
+code/thickness_analysis/*.asv
+
+# Ignore backup files
+*.backup
+        
+# Ignore unet model
+code/unet-segmentation/*.h5

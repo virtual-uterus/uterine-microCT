@@ -1,0 +1,36 @@
+# Top level parameters
+prefix="AWA015_PTA_1"
+extension="png"
+
+# Dataset image parameters
+nb_pixel_x=2192
+nb_pixel_y=4496
+resolution=10.943253
+
+# Downsampling parameters
+start_nb=310
+end_nb=2130
+
+nb_used_slices=5 # Number of slices for finding centre vectors
+
+# Region of interest
+xlim = [632, 1500] 
+ylim = [700, 3152]
+
+# Structure tensor parameters
+[ST]
+[ST.diffusion]
+	erosion_threshold=10
+	erosion_radius=4
+	diffusion_distance=2
+	
+[ST.structure_tensor]
+	derivative_template_width=5
+	smoothing_template_width=5
+	
+[ST.streamlines]
+	level=4
+	DJ=8
+	DI=8
+	DK=8
+

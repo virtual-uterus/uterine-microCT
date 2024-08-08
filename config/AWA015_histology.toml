@@ -1,0 +1,17 @@
+# Top level parameters
+prefix = "AWA015_PTA_1_histology"
+extension="png"
+
+# Thickness analysis parameters
+[thickness]
+	start_nb = 74 # Slice to start rotation (unused)
+	scaling_factor = 0.00255 # in mm
+	
+[thickness.left]
+	end_nb = 284 # Slice to end rotation (unused)
+	slice_nbs = [128, 200, 263] # Python index starts at 0
+
+[thickness.right]
+	end_nb = 453 # Slice to end rotation (unused)
+	slice_nbs = [0, 1, 2, 3] # Python index starts at 0
+

@@ -1,0 +1,445 @@
+%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
+%
+% ProcessST_MaskHelix.m
+%
+% This script loads in structure tensor binary data at a specific level
+% of smoothing, tissue mask images and information about the centroid position and
+% long axis of the ventricles.
+%
+% Modified by: Mark Trew, June 2022
+%
+%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
+clear all;
+
+ttotalprocess0 = clock;
+
+%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
+%
+% Set parameters 
+%
+%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
+Level = 5; % frequency resolution of ST/Hessian data to use
+
+%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
+%
+% Data and path locations
+%
+%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
+% Full image set - heart 2 original
+% InputPath = '../Data/STBinary/';
+% OutputPath = '../Data/STBinary/';
+% MaskPath = '../RawImages/BinaryMask/';
+% HelixImageOutputPath = '../Images/Part1HelixAngleImages/Level5/';
+% MaskPath = '../Images/Mask/';
+% MaskPrefix = 'FH2_PTA_12_8_21_';
+% EnergyPrefix = 'Heart2Original';
+% Njm = 2048; Nim = 2048; Nkm = 1024;
+% MRange = 141+[100:1123];
+
+% Upper ventricle set
+% InputPath = '../Data/STBinaryUpperVentricles/';
+% OutputPath = '../Data/STBinaryUpperVentricles/';
+% MaskPath = '../Images/Mask_Part2_CleanMask/AllFramesMask/';
+% MaskPrefix = 'FH2_PTA_12_8_21_';
+% Njm = 2048; Nim = 2048; Nkm = 512;
+% MRange = [1150:1661];
+
+% % Subregion septum
+% InputPath = '../Data/STBinarySubregionSeptum/';
+% OutputPath = '../Data/STBinarySubregionSeptum/';
+% Njm = 150; Nim = 1122; Nkm = 794;
+% MRange = [1:Nkm];
+% MaskPath = '../Images/SubregionSeptum/';
+% MaskPrefix = 'SubregionSeptum';
+% 
+% % Subregion LV freewall
+% InputPath = '../Data/STBinarySubregionLVFreewall/';
+% OutputPath = '../Data/STBinarySubregionLVFreewall/';
+% Njm = 484; Nim = 162; Nkm = 860;
+% MRange = [1:Nkm];
+% MaskPath = '../Images/SubregionLVFreewall/';
+% MaskPrefix = 'SubregionLVFree';
+
+% Subregion LV freewall
+% InputPath = '../Data/STBinarySubregionLVFreewallInbuiltG/';
+% OutputPath = '../Data/STBinarySubregionLVFreewallInbuiltG/';
+% Njm = 484; Nim = 162; Nkm = 860;
+% MRange = [1:Nkm];
+% MaskPath = '../Images/SubregionLVFreewall/';
+% MaskPrefix = 'SubregionLVFree';
+
+% Full heart 1
+% InputPath = '../DataHeart1/STBinary/';
+% OutputPath = '../DataHeart1/STBinary/';
+% %HelixImageOutputPath = '../ImagesHeart1/ResizedDisplay/HelixAngleImages/Level6/';
+% HelixImageOutputPath = '../ImagesHeart1/ResizedDisplay/HelixAngleImages/Level5/';
+% MaskPath = '../ImagesHeart1/MaskEdited/';
+% MaskPrefix = 'FH1_PTA_20_7_21_';
+% EnergyPrefix = 'Heart1Original';
+% Njm = 2048; Nim = 2352; Nkm = 1493;
+% MRange = [260:1752];
+% NewSize = [512,588,373];
+% 
+% Air Dry Heart 2
+% InputPath = '../DataHeartDry/STBinary/';
+% OutputPath = '../DataHeartDry/STBinary/';
+% HelixImageOutputPath = sprintf('../ImagesHeartDry/HelixAngleImages/Level%1d/',Level);
+% MaskPath = '../ImagesHeartDry/Mask/';
+% MaskPrefix = 'AirDry_';
+% EnergyPrefix = 'Heart2AirDry';
+% Njm = 1237; Nim = 1237;
+% MRange = [548:1060];
+% Nkm = length(MRange);
+% NewSize = [512,512,64];
+
+% Air Dry H1C1H
+InputPath = '../Data_H1C1H/STBinary/';
+OutputPath = '../Data_H1C1H/STBinary/';
+HelixImageOutputPath = sprintf('../Images_H1C1H/HelixAngleImages/Level%1d/',Level);
+MaskPath = '../Images_H1C1H/Mask/';
+MaskPrefix = 'H1C1H_';
+EnergyPrefix = 'H1C1H_';
+Njm = 1589; Nim = 1771;
+MRange = [370:1689];
+Nkm = length(MRange);
+NewSize = [512,571,425];
+
+
+%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
+%
+% Load data
+%
+%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
+fprintf(' ... loading in data ... \n');
+fid = fopen(sprintf('%sS%1d.bin',InputPath,Level),'r');
+N = fread(fid,3,'uint16');
+fprintf(' ... Dimension: [%d,%d,%d] ... \n',N);
+d2Xs = double(fread(fid,prod(N),'double'));
+dXYs = double(fread(fid,prod(N),'double'));
+dXZs = double(fread(fid,prod(N),'double'));
+d2Ys = double(fread(fid,prod(N),'double'));
+dYZs = double(fread(fid,prod(N),'double'));
+d2Zs = double(fread(fid,prod(N),'double'));
+fclose(fid);
+
+fid = fopen(sprintf('%sIJK%1d.bin',InputPath,Level),'r');
+N = fread(fid,3,'uint16');
+fprintf(' ... Dimension: [%d,%d,%d] ... \n',N);
+I = fread(fid,prod(N),'uint16');
+J = fread(fid,prod(N),'uint16');
+K = fread(fid,prod(N),'uint16');
+fclose(fid);
+
+% Read in mask data
+kstart = MRange(1); kend = MRange(Nkm); 
+I3D = true(Njm,Nim,Nkm); 
+for k=kstart:kend
+  fnamein = sprintf('%s%s%04d.png',MaskPath,MaskPrefix,k);
+  M = ~(imread(fnamein) == 0);
+  I3D(:,:,k-kstart+1) = M;
+end
+FullMask = I3D;
+I3D = permute(I3D,[2,1,3]);
+I3D = reshape(I3D,Nim*Njm*Nkm,1);
+GD = ((K-1)*Njm+J-1)*Nim+I;
+MaskGD = find(I3D(GD));
+
+% Load in precomputed axis orientations for helix angle calculations
+load(sprintf('%sAxisDataForHelixAngleCalcs.mat',InputPath));
+
+%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
+%
+% Manipulate loaded data
+%
+%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
+FullMask = I3D;
+I3D = permute(I3D,[2,1,3]);
+I3D = reshape(I3D,Nim*Njm*Nkm,1);
+GD = ((K-1)*Njm+J-1)*Nim+I;
+MaskGD = find(I3D(GD));
+
+% Only use data within masked tissue
+d2Xs = d2Xs(MaskGD);
+dXYs = dXYs(MaskGD);
+dXZs = dXZs(MaskGD);
+d2Ys = d2Ys(MaskGD);
+dYZs = dYZs(MaskGD);
+d2Zs = d2Zs(MaskGD);
+I = I(MaskGD);
+J = J(MaskGD);
+K = K(MaskGD);
+
+% Index step sizes 
+DI = I(2)-I(1); DJ = J(1+N(1))-J(1); DK = K(1+N(1)*N(2))-K(1);
+
+%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
+%
+% Eigenanalysis.
+%
+% Eigenvalues and eigenvectors are found for each tissue point (background
+% points are excluded). Angles from the helix plane are found at the same
+% time.
+%
+%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
+fprintf(' ... finding eigen-things ... \n');
+L1 = zeros(length(d2Xs),1);
+L2 = zeros(length(d2Xs),1);
+L3 = zeros(length(d2Xs),1);
+E1 = zeros(length(d2Xs),3);
+E2 = zeros(length(d2Xs),3);
+E3 = zeros(length(d2Xs),3);
+HelixF = zeros(length(d2Xs),1);
+HelixFLV = zeros(length(d2Xs),1);
+HelixFRV = zeros(length(d2Xs),1);
+HelixS = zeros(length(d2Xs),1);
+HelixN = zeros(length(d2Xs),1);
+TLVV = zeros(length(d2Xs),3);
+rLVV = zeros(length(d2Xs),3);
+MagrLV = zeros(length(d2Xs),1);
+parfor i=1:length(d2Xs)
+  if ~mod(i,100000)
+    fprintf(' entry: %d\n',i);
+  end
+  % local structure tensor
+  S = [d2Xs(i),dXYs(i),dXZs(i);dXYs(i),d2Ys(i),dYZs(i);dXZs(i),dYZs(i),d2Zs(i)];
+  [V,D] = eig(S); % evect/eval in largest to smallest
+  [y,idx]=sort(diag(D));
+  L1(i) = D(idx(3),idx(3));
+  L2(i) = D(idx(2),idx(2));
+  L3(i) = D(idx(1),idx(1)); % smallest, i.e. fibre
+  E1(i,:) = V(:,idx(3))';
+  E2(i,:) = V(:,idx(2))';
+  E3(i,:) = V(:,idx(1))'; % smallest, i.e. fibre
+  
+  % Compute helix angle with respect to a plane orthogonal to the principal
+  % axis of the ventricular space. 
+  PA = Coefs(:,3);
+  DPC = [[I(i),J(i),K(i)]-COM]';
+  Delta = dot(DPC,PA);
+  r = DPC - Delta*PA; r = r/norm(r);
+  T = cross(PA,r); T = T/norm(T);
+  if dot(E3(i,:)',T) < 0 % flip the fibre direction if is is pointing toward the apex.
+      E3(i,:) = -1*E3(i,:);
+  end
+  HelixF(i) = asind(dot(E3(i,:)',PA)/sqrt(dot(E3(i,:)',PA)^2+dot(E3(i,:)',T)^2));
+  HelixS(i) = asind(dot(E2(i,:)',PA)/sqrt(dot(E2(i,:)',PA)^2+dot(E2(i,:)',T)^2));
+  HelixN(i) = asind(dot(E1(i,:)',PA)/sqrt(dot(E1(i,:)',PA)^2+dot(E1(i,:)',T)^2));
+end
+
+% Calculate a fractional anisotropy
+Trace = (L1+L2+L3)/3;
+IG = (L1-L3 <= 1e-6) & (L1+L2+L3 <= 1e-6);
+Denom = sqrt(L1.^2+L2.^2+L3.^3+1e-6*cast(IG,'double'));
+FA1 = sqrt(3/2)*(sqrt((L1-Trace).^2+(L2-Trace).^2+(L3-Trace).^2))./Denom;
+
+% Structure tensor data
+STD = [d2Xs,dXYs,dXZs,d2Ys,dYZs,d2Zs];
+
+% Compute information content
+InfoLabels = {'Eigenvalues';'Eigenvectors';'Fibre Helix Angles';'Fractional Anisotropy';'Structure Tensor'};
+HEval = histogram([L1,L2,L3],1000,'Normalization','Probability'); HEval = HEval.Values(find(abs(HEval.Values) > 0));
+HEvec = histogram([E1,E2,E3],1000,'Normalization','Probability'); HEvec = HEvec.Values(find(abs(HEvec.Values) > 0));
+HHF = histogram(HelixF,1000,'Normalization','Probability'); HHF = HHF.Values(find(abs(HHF.Values) > 0));
+HFA = histogram(FA1,1000,'Normalization','Probability'); HFA = HFA.Values(find(abs(HFA.Values) > 0));
+HSTD = histogram(STD,1000,'Normalization','Probability'); HSTD = HSTD.Values(find(abs(HSTD.Values) > 0));
+% HEval = histogram([L1,L2,L3],size(L1,1),'Normalization','Probability'); HEval = HEval.Values(find(abs(HEval.Values) > 0));
+% HEvec = histogram([E1,E2,E3],size(E1,1),'Normalization','Probability'); HEvec = HEvec.Values(find(abs(HEvec.Values) > 0));
+% HHF = histogram(HelixF,size(HelixF,1),'Normalization','Probability'); HHF = HHF.Values(find(abs(HHF.Values) > 0));
+% HFA = histogram(FA1,size(FA1,1),'Normalization','Probability'); HFA = HFA.Values(find(abs(HFA.Values) > 0));
+% HSTD = histogram(STD,size(STD,1),'Normalization','Probability'); HSTD = HSTD.Values(find(abs(HSTD.Values) > 0));
+% InfoContent = [
+%     wentropy([L1,L2,L3],'shannon'),wentropy([L1,L2,L3],'log energy');
+%     wentropy([E1,E2,E3],'shannon'),wentropy([E1,E2,E3],'log energy');
+%     wentropy(HelixF,'shannon'),wentropy(HelixF,'log energy');
+%     wentropy(FA1,'shannon'),wentropy(FA1,'log energy');
+%     wentropy(STD,'shannon'),wentropy(STD,'log energy');
+%    ];
+
+InfoContent = [-HEval*log2(HEval');-HEvec*log2(HEvec');-HHF*log2(HHF');-HFA*log2(HFA');-HSTD*log2(HSTD')];
+
+save(sprintf('%s%s_ShannonLogEnergyEntropyData_L%d_v2.mat',OutputPath,EnergyPrefix,Level),'InfoLabels','InfoContent');
+
+% figure(1); clf;
+% subplot(1,3,1); hist(L1,100); xlabel('Maximum eigenvalue','FontName','Arial','FontSize',10); ylabel('Frequency','FontName','Arial','FontSize',10); set(gca,'FontName','Arial','FontSize',10);
+% subplot(1,3,2); hist(FA1,100); xlabel('Fractional anisotropy','FontName','Arial','FontSize',10); ylabel('Frequency','FontName','Arial','FontSize',10); set(gca,'FontName','Arial','FontSize',10);
+% subplot(1,3,3); hist(HelixF,100); xlabel('Helix angle (\circ)','FontName','Arial','FontSize',10); ylabel('Frequency','FontName','Arial','FontSize',10); set(gca,'FontName','Arial','FontSize',10);
+% print(gcf,sprintf('%s%s_Histograms_L%d.png',OutputPath,EnergyPrefix,Level),'-dpng','-r1200');
+% 
+
+% figure(1); clf;
+% subplot(1,3,1); histogram(L1,100,'Normalization','Probability'); axis([0 0.005 0 0.4]); xlabel('Max evalue','FontName','Arial','FontSize',10); ylabel('Probability','FontName','Arial','FontSize',10); set(gca,'FontName','Arial','FontSize',10);
+% subplot(1,3,2); histogram(FA1,100,'Normalization','Probability'); axis([0 1 0 0.03]); xlabel('Frac aniso','FontName','Arial','FontSize',10); ylabel('Probability','FontName','Arial','FontSize',10); set(gca,'FontName','Arial','FontSize',10);
+% subplot(1,3,3); histogram(HelixF,100,'Normalization','Probability'); axis([-90 90 0 0.02]); xlabel('Helix angle (\circ)','FontName','Arial','FontSize',10); ylabel('Probability','FontName','Arial','FontSize',10); set(gca,'FontName','Arial','FontSize',10);
+% print(gcf,sprintf('%s%s_Histograms_L%d.png',OutputPath,EnergyPrefix,Level),'-dpng','-r1200');
+% 
+% figure(2); clf;
+% subplot(1,3,1); boxplot(L1,'Labels',' '); axis([0.8 1.2 0 0.005]); set(gca,'FontName','Arial','FontSize',10); ylabel('Maximum eigenvalue','FontName','Arial','FontSize',10); set(gca,'FontName','Arial','FontSize',10);
+% subplot(1,3,2); boxplot(FA1,'Labels',' '); axis([0.8 1.2 0 1]); set(gca,'FontName','Arial','FontSize',10); ylabel('Fractional anisotropy','FontName','Arial','FontSize',10); set(gca,'FontName','Arial','FontSize',10);
+% subplot(1,3,3); boxplot(HelixF,'Labels',' '); axis([0.8 1.2 -90 90]); set(gca,'FontName','Arial','FontSize',10); ylabel('Helix angle (\circ)','FontName','Arial','FontSize',10); set(gca,'FontName','Arial','FontSize',10);
+% print(gcf,sprintf('%s%s_Boxplots_L%d.png',OutputPath,EnergyPrefix,Level),'-dpng','-r1200');
+
+
+return;
+
+% % Write just a layer
+% Idx = find(K==961);
+% exfname = sprintf('%sVisLayerData_L%d',OutputPath,Level);
+% DataSLabels = {'MagrLV','HelixFV'};
+% DataVLabels = {'TLV','rLV','Fiber'};
+% DataS = zeros(length(Idx),2);
+% DataS(:,1) = MagrLV(Idx);
+% DataS(:,2) = HelixFLV(Idx);
+% DataV = cell(3);
+% DataV{1} = TLVV(Idx,:);
+% DataV{2} = rLVV(Idx,:);
+% DataV{3} = E3(Idx,:);
+% GName = sprintf('HelixVector');
+% WriteGeneralExdataFile(I(Idx),J(Idx),K(Idx),[1:length(Idx)]',DataS,DataV,exfname,GName,DataSLabels,DataVLabels);
+
+
+return;
+ 
+fprintf('...resizing and interpolation function ... \n')
+RFullMask = imresize3(FullMask,NewSize);
+[RFMJ,RFMI,RFMK]=ndgrid(round(1:(Njm/NewSize(1)):Njm),round(1:(Nim/NewSize(2)):Nim),round(1:(Nkm/NewSize(3)):Nkm));
+%HelixVals = griddata(I,J,K,HelixF,RFMI,RFMJ,RFMK,'natural');
+FSI = scatteredInterpolant(I,J,K,HelixF,'natural','linear');
+% 
+fprintf('... writing interpolated images ...\n')
+parfor k=1:NewSize(3)
+  if ~mod(k,20) fprintf(' slice: %d\n',k); end
+  Slice = FSI(RFMI(:,:,k),RFMJ(:,:,k),RFMK(:,:,k));
+  ImSlice = uint8(255*(Slice+90)/180).*uint8(RFullMask(:,:,k));
+  fname = sprintf('%sHA%03d.png',HelixImageOutputPath,k);
+  imwrite(ImSlice,fname);
+end
+
+% return;
+% 
+% for k=1:NewSize(3)
+%     fname = sprintf('%sHA%03d.png',HelixImageOutputPath,k);
+%     imwrite(flipud(imrotate((U8HV(:,:,k)),90)).*uint8(RFullMask(:,:,k)),fname);
+% end
+% 
+% return;
+% 
+%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
+%
+% Assess eigenvalues
+%
+%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
+% coherency and categorisation
+fprintf(' ... categorizing ... \n');
+
+% compute measures of strength of eigen values
+CO = zeros(length(d2Xs),1);
+COFS = zeros(length(d2Xs),1);
+COFN = zeros(length(d2Xs),1);
+COSN = zeros(length(d2Xs),1);
+IG = zeros(length(d2Xs),1);
+CL = zeros(length(d2Xs),1);
+GN = zeros(length(d2Xs),1); % norm of the gradient
+
+IG = (L1-L3 <= 1e-6) & (L1+L2+L3 <= 1e-6);
+
+COFS = (L2-L3)./max(L2+L3,1e-6);
+COFN = (L1-L3)./max(L1+L3,1e-6);
+COSN = (L1-L2)./max(L1+L2,1e-6);
+
+CO = (COFS+COFN+COSN)/3;
+CON = (COFN+COSN)/2;
+
+% Calculate a coherency index
+CO = (L1-L3)./(L1+L2+L3+1e6*cast(IG,'double'));
+CL = ((L1>1e-6 & L2>1e-6 & L3>1e-6)*3) + ((L1>1e-6 & L2>1e-6 & L3<=1e-6)*2) + ((L1>1e-6 & L2<=1e-6 & L3<=1e-6)*1);
+
+% Calculate a fractional anisotropy
+Trace = (L1+L2+L3)/3;
+Denom = sqrt(L1.^2+L2.^2+L3.^3+1e-6*cast(IG,'double'));
+FA1 = sqrt(3/2)*(sqrt((L1-Trace).^2+(L2-Trace).^2+(L3-Trace).^2))./Denom;
+FA2 = sqrt(1/2)*(sqrt((L1-L2).^2+(L2-L3).^2+(L3-L1).^2))./Denom;
+
+% Norm of the intensity gradient
+GN = sqrt(d2Xs+d2Ys+d2Zs);
+
+%
+TestAngle = (180/pi)*asin(E3(:,3)./sqrt(sum(E3(:,[1,3]).^2,2)));
+Q1 = double(E3(:,3) >=0 & E3(:,1) >0);
+Q2 = double(E3(:,3) >=0 & E3(:,1) <= 0);
+Q3 = double(E3(:,3) <0  & E3(:,1) < 0);
+Q4 = double(E3(:,3) <0  & E3(:,1) >=0);
+FiberAngles = Q1.*TestAngle + Q2.*(-TestAngle) + Q3.*(-TestAngle) + Q4.*(TestAngle);
+FiberAngles = -1*FiberAngles; % Convention
+
+IFG = (sum([sqrt(abs(d2Xs)),sqrt(abs(d2Ys)),sqrt(abs(d2Zs))].*E3,2));
+
+% Flip Fiber vectors as necessary:
+%E3 = repmat(Q1,[1,3]).*E3 + repmat(Q2,[1,3]).*(-1*E3) +repmat(Q3,[1,3]).*(-1*E3) + repmat(Q4,[1,3]).*(E3);
+
+ttotalprocess1 = etime(clock,ttotalprocess0); fprintf(' *** total processing time: %0.2f sec\n',ttotalprocess1);
+
+%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
+%
+% Write files
+%
+%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
+%filename = sprintf('%sFiber_L%d.dat',OutputPath,Level);
+%fid = fopen(filename,'w');
+%fprintf(fid,'%f %f %f\n',E3');
+%fclose(fid);
+
+%filename = sprintf('%sSheet_L%d.dat',OutputPath,Level);
+%fid = fopen(filename,'w');
+%fprintf(fid,'%f %f %f\n',E2');
+%fclose(fid);
+
+%filename = sprintf('%sNormal_L%d.dat',OutputPath,Level);
+%fid = fopen(filename,'w');
+%fprintf(fid,'%f %f %f\n',E1');
+%fclose(fid);
+
+%filename = sprintf('%sEvalues_L%d.dat',OutputPath,Level);
+%fid = fopen(filename,'w');
+%fprintf(fid,'%f %f %f\n',[L3,L2,L1]');
+%fclose(fid);
+
+% Save matlab data
+%save(sprintf('%sData_L%d.mat',OutputPath,Level),'I','J','K','E1','E2','E3','L1','L2','L3','IG','COFS','COFN','COSN','CO','CL','Trace','FA1','GN','FiberAngles','IFG','-v7.3');
+
+% Write exdata file
+Idx = 1:length(I);
+NLayer = [N(1),N(2),N(3)];
+
+Is = I(Idx);
+Js = J(Idx);
+Ks = K(Idx);
+Xs = Is; % modify to represent mapping from indices to xyz
+Ys = Js;
+Zs = Ks;
+E1s = E1(Idx,:);
+E2s = E2(Idx,:);
+E3s = E3(Idx,:);
+COs = CO(Idx);
+COFSs = COFS(Idx);
+COFNs = COFN(Idx);
+COSNs = COSN(Idx);
+L1s = L1(Idx);
+L2s = L2(Idx);
+L3s = L3(Idx);
+FA1s = FA1(Idx);
+FA2s = FA2(Idx);
+Angles = FiberAngles(Idx);
+GNorm = GN(Idx);
+%GNorm = WB(Idx);
+%GNorm = OldLocalObj(Idx);
+IntensityFGradient = IFG(Idx);
+HelixFs = HelixF(Idx);
+HelixSs = HelixS(Idx);
+HelixNs = HelixN(Idx);
+
+% Turn off writing exdata file
+WriteExdataFile(NLayer,1,Xs,Ys,Zs,E1s,E2s,E3s,COs,COFSs,COFNs,COSNs,L1s,L2s,L3s,FA1s,FA2s,Angles,GNorm,IntensityFGradient,HelixFs,HelixSs,HelixNs,sprintf('%sVisData_L%d.exdata',OutputPath,Level),'OrientationF',300000);
+
+
+
+

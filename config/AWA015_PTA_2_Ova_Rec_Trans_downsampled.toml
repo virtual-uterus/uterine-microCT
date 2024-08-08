@@ -1,0 +1,83 @@
+# Top level parameters
+prefix="AWA015_PTA_2_Ova"
+extension="png"
+
+# Dataset parameters
+nb_pixel_x=518
+nb_pixel_y=753
+resolution=44.000000
+
+# Downsampling parameters (from the full dataset) 
+start_nb=310
+end_nb=2110
+
+# Parameters for removing ovaries (unused)
+left_ovary=302
+right_ovary=451
+
+# Preprocessing parameters for segmentation (unused)
+preprocess=1
+strel_size=2
+split_nb=0 # Slice number after which horns are independant
+
+nb_used_slices=5 # Number of slices for finding centre vectors
+
+# Region of interest (for upsampling)
+xlim = [1, 518]
+ylim = [1, 753]
+
+# Segmentation parameters (unused)
+[segmentation]
+
+[segmentation.muscle]
+	morph_size=2
+	neighborhood_size=3
+
+[segmentation.tissue]
+	# Untested
+	threshold=20
+	morph_size=2
+	neighborhood_size=3
+
+[segmentation.fat]
+	morph_size=2
+	# Untested
+	neighborhood_size=3
+
+[segmentation.shape]
+	# Untested
+	threshold=20
+	morph_size=2
+	neighborhood_size=3
+
+# Thickness analysis parameters (unused)
+[thickness]
+	start_nb = 74 # Slice to start rotation
+	scaling_factor = 0.043773012 # in mm
+	
+[thickness.left]
+	end_nb = 301 # Slice to end rotation
+	slice_nbs = [131, 205, 260] # Python index starts at 0
+
+[thickness.right]
+	end_nb = 450 # Slice to end rotation
+	slice_nbs = [128, 246, 406] # Python index starts at 0
+
+# Structure tensor parameters
+[ST]
+
+[ST.diffusion]
+	erosion_threshold=5
+	erosion_radius=3
+	diffusion_distance=5
+	
+[ST.structure_tensor]
+	derivative_template_width=3
+	smoothing_template_width=3
+	
+[ST.streamlines]
+	level=4
+	DJ=3
+	DI=3
+	DK=3
+
