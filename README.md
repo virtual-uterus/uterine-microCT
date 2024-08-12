@@ -126,6 +126,8 @@ The model uses the code from GitHub user Karol Żak. The code is available under
 
 **NOTE:** The scripts for running inference and training are placed in the unet-segmentation folder.
 
+**NOTE:** The UNet only work on the downsampled images and require the downsampled folder to be created to be used.
+
 ##### Training
 The training images should be placed in a specific folder with an imgs folder containing the $`mu`$CT images an a masks folder containing the training masks. The images should be 512 x 512 pixels.
 
