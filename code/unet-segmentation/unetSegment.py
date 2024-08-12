@@ -10,7 +10,6 @@ import glob
 import argparse
 
 import numpy as np
-import tensorflow as tf
 import utils.utils as utils
 import skimage.io as skio
 
@@ -31,7 +30,7 @@ if __name__ == "__main__":
     )
     parser.add_argument(
         "model", type=str, metavar="model",
-        help="Saved model to use"
+        help="saved model to use"
     )
     parser.add_argument(
         "--not-d",
@@ -49,6 +48,9 @@ if __name__ == "__main__":
 
     # Parse input arguments
     args = parser.parse_args()
+
+    # Import tensorflow only after arguments to avoid loading on help
+    import tensorflow as tf
 
     main_directory = os.path.join(utils.HOME, utils.BASE, args.dir_path,
                                   args.base_name)
