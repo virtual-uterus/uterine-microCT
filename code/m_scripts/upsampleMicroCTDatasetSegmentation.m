@@ -101,6 +101,11 @@ for run = 1:nb_runs
         :)), ...
         resize_factor);
     
+    if max(new_mask_stack, [], 'all') > 1
+        % Normalise mask stack if not already binary
+        new_mask_stack = new_mask_stack ./ max(new_mask_stack, [], 'all');
+    end
+
     % Apply masks
     new_img_stack = new_img_stack .* new_mask_stack;
 
