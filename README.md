@@ -1,6 +1,6 @@
 # Uterine $`\mu`$CT analysis
 This repository contains code to analyse $`\mu`$CT datasets of rat uteri and used for the paper
-__3D virtual histology of the rat uterus musculature using micro-computed tomography__
+[_Three-dimensional virtual histology of the rat uterus musculature using micro-computed tomography_](https://onlinelibrary.wiley.com/doi/10.1111/joa.14131)
 # Table of contents
 1. [Requirements](#requirements)
 2. [Workflow](#workflow)
