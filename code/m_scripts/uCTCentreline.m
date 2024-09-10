@@ -35,6 +35,11 @@ load_directory = join([baseDir(), dir_path, base_name], '/');
 if downsampled
     % If using the downsampled dataset
     load_directory = join([load_directory, "downsampled"], '/');
+    toml_map = toml.read(join([load_directory, ...
+        base_name + "_downsampled.toml"], '/'));
+else
+    % Use the non-downsampled TOML file
+    toml_map = toml.read(join([load_directory, base_name + ".toml"], '/'));
 end
 
 if ST
@@ -44,6 +49,9 @@ else
     load_directory = join([load_directory, "muscle_segmentation"], '/');
 end
 
+% Load parameters
+params = toml.map_to_struct(toml_map);
+
 for k = 1:length(regions)
     region = regions(k);
     disp("Processing region: " + region)
@@ -52,6 +60,14 @@ for k = 1:length(regions)
 
     if strcmp(region, "both")
         mask_paths = getImagePaths(tmp_load_directory, extension);
+        % Set region to the longest horn
+        if params.thickness.("left").end_nb > params.thickness.(...
+                "right").end_nb
+            region = "left";
+        else
+            region = "right";
+        end
+        
     else
         tmp_load_directory = join([load_directory, region], '/');
         mask_paths = getImagePaths(tmp_load_directory, extension);
@@ -67,7 +83,7 @@ for k = 1:length(regions)
         centreline(:, l) = reshape(centre_points', [6, 1]);
     end
 
-    if strcmp(region, "both")
+    if strcmp(regions(k), "both")
         for m = 1:size(centreline, 1)
             % Smooth centreline coordinates
             end_idx = find(centreline(m, :), 1, 'last');
