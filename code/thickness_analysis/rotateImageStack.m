@@ -29,6 +29,8 @@ if ~isnumeric(img_stack)
     img_stack = double(img_stack);
 end
 
+proper_size = 300; % Define how big a region is to be considered
+
 for k = 1:nb_slices
 
     if mod(k, 50) == 0
@@ -36,6 +38,24 @@ for k = 1:nb_slices
     end
 
     cur_mask = img_stack(:, :, k); % Current mask to rotate
+
+    props = regionprops(imbinarize(cur_mask), ...
+        'Area', 'Centroid', 'PixelList');
+    props([props.Area] < proper_size) = []; % Remove false positives
+
+    if size(props, 1) == 2
+        % If there are two horns, remove the one not rotated
+        coords = arrayfun(@(props) props.Centroid(1), props);
+
+        if strcmp(region, "left")
+            [~, idx] = max(coords);  % Find the index of the right horn
+        else
+            [~, idx] = min(coords);  % Find the index of the left horn
+        end
+
+        cur_mask(props(idx).PixelList(:, 2), ...
+            props(idx).PixelList(:, 1)) = 0; % Remove unrotated horn
+    end
 
     % Find centre points
     cur_centrepoints = centreline(region_nb:region_nb+1, k)';
