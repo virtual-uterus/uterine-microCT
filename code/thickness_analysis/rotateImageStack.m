@@ -61,32 +61,16 @@ for k = 1:nb_slices
 
     else
         % Create the transformation matrix
-        origin = [cur_centrepoints, 0];
-        T = findRotationMatrix(centre_vector, [0, 0, 1], origin);
+        axis = cross(centre_vector, [0, 0, 1]);
+        angle = acos(dot(centre_vector, [0, 0, 1]));
+        T = [axang2rotm([axis, angle]) [0; 0; 0]; 0 0 0 1];
 
         % Pad the current mask to make a 3D object for rotation
         mask_3D = padarray(cur_mask, [0, 0, 1], 0, 'post');
 
         % Rotate image and collapse it onto the XY plane
         rotated_mask = sum(imwarp(mask_3D, affine3d(T)), 3);
-
-        % Resize the rotated image to have dimensions of original
-        dim_diff = size(cur_mask) - size(rotated_mask);
-
-        if dim_diff(1) > 0
-            rotated_mask = padarray(rotated_mask, [dim_diff(1), 0], 'post');
-
-        else
-            rotated_mask = rotated_mask(1:end+dim_diff(1), :);
-        end
-
-        if dim_diff(2) > 0
-            rotated_mask = padarray(rotated_mask, [0, dim_diff(2)], 'post');
-
-        else
-            rotated_mask = rotated_mask(:, 1:end+dim_diff(2));
-        end
-
+        rotated_mask = imresize(rotated_mask, size(cur_mask));
         rotated_stack(:, :, k) = imclose(rotated_mask, strel("disk", 1, 4));
 
         % Check the ratio of white pixel to remove ill-rotated slices
