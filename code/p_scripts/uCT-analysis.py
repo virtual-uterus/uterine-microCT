@@ -23,8 +23,10 @@ if __name__ == "__main__":
     )
 
     parser.add_argument(
-        "dir_path", type=str, metavar="dir-path", help="path from BASE "
-        "to the dataset"
+        "dir_path",
+        type=str,
+        metavar="dir-path",
+        help="path from BASE " "to the dataset",
     )
     parser.add_argument(
         "base_name", type=str, metavar="base-name", help="name of the dataset"
@@ -110,8 +112,7 @@ if __name__ == "__main__":
         print("Processing {} horn".format(horn))
         print("   Loading mask stack")
         mask_stack = utils.loadImageStack(
-            os.path.join(
-                load_directory, "{}".format(horn)), extension=args.extension
+            os.path.join(load_directory, "{}".format(horn)), extension=args.extension
         )
 
         nb_imgs = len(mask_stack)
@@ -130,34 +131,29 @@ if __name__ == "__main__":
         nb_slices = len(centreline) - 1  # Number of slices in the horn
 
         print("   Estimating muscle thickness")
-        muscle_thickness, slice_thickness, radius = \
-            projection.estimateMuscleThickness(
-                mask_stack, centreline, args.points,
-                params[horn]["slice_nbs"], horn
-            )
+        muscle_thickness, slice_thickness, radius = projection.estimateMuscleThickness(
+            mask_stack, centreline, args.points, params[horn]["slice_nbs"], horn
+        )
 
         # Estimate horn length
         print("   Estimating horn length")
-        centreline_dict = scipy.io.loadmat(
-            load_directory + "/centreline.mat"
-        )
+        centreline_dict = scipy.io.loadmat(load_directory + "/centreline.mat")
         centreline = np.transpose(centreline_dict["centreline"])
-        centreline = np.round(centreline).astype(int)  # Convert to int
 
         match horn:
             case "left":
-                ind = np.where(centreline[:nb_slices, 0:4] == 0)[0]
-                horn_start = np.append(centreline[ind[0], 0:2], 0)
-                # Divide len by 2 because np.where doubles the length
-                horn_end = np.append(centreline[ind[-1], 0:2], len(ind) / 2)
-
+                ind = np.where(centreline[:nb_slices, 0] != 0)[0]
+                last_slice = ind[-1]  # Get the last slice index of horn
+                centre_vectors = np.diff(centreline[:last_slice, 0:2], axis=0)
             case "right":
-                ind = np.where(centreline[:nb_slices, 2:6] == 0)[0]
-                horn_start = np.append(centreline[ind[0], 4:6], 0)
-                # Divide len by 2 because np.where doubles the length
-                horn_end = np.append(centreline[ind[-1], 4:6], len(ind) / 2)
+                ind = np.where(centreline[:nb_slices, 5] != 0)[0]
+                last_slice = ind[-1]  # Get the last slice index of horn
+                centre_vectors = np.diff(centreline[:last_slice, 4:6], axis=0)
 
-        length = np.linalg.norm(horn_end - horn_start)
+        coordinates = np.ones((last_slice - 1, 3))  # Account for diff
+        # Add the centre vector coordinates
+        coordinates[:, 0:2] = centre_vectors
+        length = np.sum(np.linalg.norm(coordinates, axis=1))
 
         # Rescale the thickness to mm
         muscle_thickness *= params["scaling_factor"]
@@ -166,20 +162,16 @@ if __name__ == "__main__":
         length *= params["scaling_factor"]
 
         print(
-            "{} horn muscle thickness: {:.2f} \u00B1 {:.2f} mm".format(
+            "{} horn muscle thickness: {:.2f} \u00b1 {:.2f} mm".format(
                 horn, np.mean(muscle_thickness), np.std(muscle_thickness)
             )
         )
         print(
-            "{} horn radius: {:.2f} \u00B1 {:.2f} mm".format(
+            "{} horn radius: {:.2f} \u00b1 {:.2f} mm".format(
                 horn, np.mean(radius), np.std(radius)
             )
         )
-        print(
-            "{} horn length: {:.2f} mm".format(
-                horn, length
-            )
-        )
+        print("{} horn length: {:.2f} mm".format(horn, length))
 
         if args.switch:
             avg_thickness[horns[i - 1]] = utils.movingAverage(
@@ -188,14 +180,16 @@ if __name__ == "__main__":
             avg_slice_thickness[horns[i - 1]] = utils.circularAverage(
                 slice_thickness, circular_win_size
             ).round(5)
-            errors[horns[i - 1]] = utils.movingStd(muscle_thickness,
-                                                   std_win_size)
+            errors[horns[i - 1]
+                   ] = utils.movingStd(muscle_thickness, std_win_size)
 
         else:
             avg_thickness[horn] = utils.movingAverage(
-                muscle_thickness, muscle_win_size).round(5)
+                muscle_thickness, muscle_win_size
+            ).round(5)
             avg_slice_thickness[horn] = utils.circularAverage(
-                slice_thickness, circular_win_size).round(5)
+                slice_thickness, circular_win_size
+            ).round(5)
             errors[horn] = utils.movingStd(muscle_thickness, std_win_size)
 
     # Save angular thickness
