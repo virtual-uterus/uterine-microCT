@@ -109,7 +109,13 @@ if __name__ == "__main__":
     errors = dict()
 
     for i, horn in enumerate(horns):
-        print("Processing {} horn".format(horn))
+        if args.switch:
+            print_horn = horns[i - 1]
+
+        else:
+            print_horn = horn
+
+        print("Processing {} horn".format(print_horn))
         print("   Loading mask stack")
         mask_stack = utils.loadImageStack(
             os.path.join(load_directory, "{}".format(horn)), extension=args.extension
@@ -161,36 +167,25 @@ if __name__ == "__main__":
         radius *= params["scaling_factor"]
         length *= params["scaling_factor"]
 
+        avg_thickness[print_horn] = utils.movingAverage(
+            muscle_thickness, muscle_win_size
+        ).round(5)
+        avg_slice_thickness[print_horn] = utils.circularAverage(
+            slice_thickness, circular_win_size
+        ).round(5)
+        errors[print_horn] = utils.movingStd(muscle_thickness, std_win_size)
+
         print(
             "{} horn muscle thickness: {:.2f} \u00b1 {:.2f} mm".format(
-                horn, np.mean(muscle_thickness), np.std(muscle_thickness)
+                print_horn, np.mean(muscle_thickness), np.std(muscle_thickness)
             )
         )
         print(
             "{} horn radius: {:.2f} \u00b1 {:.2f} mm".format(
-                horn, np.mean(radius), np.std(radius)
+                print_horn, np.mean(radius), np.std(radius)
             )
         )
-        print("{} horn length: {:.2f} mm".format(horn, length))
-
-        if args.switch:
-            avg_thickness[horns[i - 1]] = utils.movingAverage(
-                muscle_thickness, muscle_win_size
-            ).round(5)
-            avg_slice_thickness[horns[i - 1]] = utils.circularAverage(
-                slice_thickness, circular_win_size
-            ).round(5)
-            errors[horns[i - 1]
-                   ] = utils.movingStd(muscle_thickness, std_win_size)
-
-        else:
-            avg_thickness[horn] = utils.movingAverage(
-                muscle_thickness, muscle_win_size
-            ).round(5)
-            avg_slice_thickness[horn] = utils.circularAverage(
-                slice_thickness, circular_win_size
-            ).round(5)
-            errors[horn] = utils.movingStd(muscle_thickness, std_win_size)
+        print("{} horn length: {:.2f} mm".format(print_horn, length))
 
     # Save angular thickness
     with open(load_directory + "/angular_thickness.pkl", "wb") as f:
