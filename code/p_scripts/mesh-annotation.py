@@ -160,6 +160,9 @@ if __name__ == "__main__":
             if k <= start_nb:
                 # Unrotated slices
                 centre_vector = np.array([0, 0, 1])
+                centre_vector[0:2] = np.diff(
+                    centreline[k: k + nb_used_slices, 2:4], axis=0
+                )
 
             else:
                 if k >= len(thickness) - nb_used_slices:
