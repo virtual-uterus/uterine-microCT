@@ -192,7 +192,7 @@ if __name__ == "__main__":
 
             norms = np.dot(elements - plane_origin, plane_normal)
             idx_list = element_idx[(norms <= 15) & (norms >= 0)]
-            point_data_array[idx_list] = round(thickness[k], 5)
+            point_data_array[idx_list] = round(thickness[k], 3)
 
     # Add the data dictionary to the mesh
     point_data_dict[point_data_name] = point_data_array
