@@ -85,8 +85,6 @@ if __name__ == "__main__":
 
     # Load parameters
     params = utils.parseTOML(param_file)
-    nb_used_slices = params["nb_used_slices"]  # Get number of slices to use
-    start_nb = params["thickness"]["start_nb"]  # Number of slices not rotated
 
     # Add the muscle segmentation to the load directory
     thickness_directory = os.path.join(
@@ -102,7 +100,7 @@ if __name__ == "__main__":
     # Get the centreline
     centreline_dict = scipy.io.loadmat(thickness_directory + "/centreline.mat")
     centreline = np.transpose(centreline_dict["centreline"])
-    centreline = np.round(centreline).astype(int)  # Round and convert to int
+    # centreline = np.round(centreline).astype(int)  # Round and convert to int
 
     # Read the mesh file
     print("Loading mesh {}".format(mesh_name + "." + args.extension))
@@ -124,25 +122,7 @@ if __name__ == "__main__":
     point_data_array = np.zeros((nb_points, 1))
     point_data_name = "thickness"
 
-    # Split the mesh elements into left and right
-    element_idx_dict = dict()
-    x_delta = mesh.points[:, 0].max() - mesh.points[:, 0].min()
-
-    if len(horns) == 1:
-        # If single horn all elements are associated with horn
-        element_idx_dict[horns[0]] = np.arange(len(mesh.points))
-
-    else:
-        # If two horns split elements into left and right
-        element_idx_dict["left"] = np.where(
-            abs(mesh.points[:, 0]) < x_delta)[0]
-        element_idx_dict["right"] = np.where(
-            abs(mesh.points[:, 0]) >= x_delta)[0]
-
-    # Split the centre points into left and right
-    centrepoint_coords = dict()
-    centrepoint_coords["left"] = centreline[:, 0:2]
-    centrepoint_coords["right"] = centreline[:, 4:6]
+    tolerance = 5
 
     for i, horn in enumerate(horns):
         print("Annotating {} horn".format(horn))
@@ -151,48 +131,78 @@ if __name__ == "__main__":
             i = i - 1
 
         thickness = thickness_data[horn]
-        element_idx = element_idx_dict[horns[i]]
-        elements = mesh.points[element_idx]
-        centrepoints = centrepoint_coords[horns[i]]
 
-        for k in range(len(thickness)):
-            # Find the centre vector
-            if k <= start_nb:
-                # Unrotated slices
-                centre_vector = np.array([0, 0, 1])
-                centre_vector[0:2] = np.diff(
-                    centreline[k: k + nb_used_slices, 2:4], axis=0
-                )
+        if horns[i] == "left":
+            centrepoints = centreline[0: len(thickness), 0:2]
+        else:
+            centrepoints = centreline[0: len(thickness), 4:6]
 
+        centrepoints_diff = np.diff(np.round(centrepoints), axis=0)
+        z_components = np.ones((len(centrepoints_diff), 1))
+
+        # Create normalised centre vectors
+        centre_vectors = np.append(centrepoints_diff, z_components, axis=1)
+        centre_norms = np.repeat(
+            np.linalg.norm(centre_vectors, axis=1), 3
+        )  # Repeat to be able to reshape
+        centre_norms = np.reshape(
+            centre_norms, centre_vectors.shape
+        )  # Reshape for division
+        centre_vectors_norm = centre_vectors / centre_norms
+
+        for j in range(len(thickness)):
+            x_split = abs(centreline[j, 0] - centreline[j, 4] / 2)
+
+            if j >= len(centre_vectors_norm):
+                centre_vector = centre_vectors_norm[j - 1]
+                centre_norm = centre_norms[j - 1][0]
             else:
-                if k >= len(thickness) - nb_used_slices:
-                    # Use less slices to get centre vector
-                    next_centrepoint = centrepoints[len(thickness) - 1]
-                    z_centre = len(thickness) - k
-                else:
-                    next_centrepoint = centrepoints[k + nb_used_slices]
-                    z_centre = nb_used_slices
+                centre_vector = centre_vectors_norm[j]
+                centre_norm = centre_norms[j][0]
 
-                centre_vector = next_centrepoint - centrepoints[k]
+            # Get plane origins points
+            first_plane_origin = np.array(
+                [centrepoints[j, 0], centrepoints[j, 1], j - tolerance]
+            )
+            second_plane_origin = np.array(
+                [
+                    centrepoints[j, 0],
+                    centrepoints[j, 1],
+                    j + tolerance,
+                ]
+            )
 
-                # Add z component
-                centre_vector = np.append(centre_vector, z_centre)
+            # Get plane constants
+            d1 = j - tolerance
+            d2 = j + tolerance
 
-                # Ensure that the direction of centre vector is consistent
-                condition_1 = centre_vector[0] < 0 and horns[i] == "right"
-                condition_2 = centre_vector[0] > 0 and horns[i] == "left"
+            # Get the x limited indices
+            if horns[i] == "left":
+                x_idx = np.where(abs(mesh.points[:, 0]) < x_split)[0]
+            else:
+                x_idx = np.where(abs(mesh.points[:, 0]) >= x_split)[0]
 
-                if condition_1 or condition_2:
-                    centre_vector[0] = -centre_vector[0]
+            elements = mesh.points[x_idx] - np.append(
+                centrepoints[j], 1
+            )  # Reduced set of points
+            ele_dot_prod = np.dot(centre_vector, np.transpose(elements))
 
-            # Slice plane normal vector and origin point
-            plane_normal = centre_vector / np.linalg.norm(centre_vector)
-            plane_origin = np.array([centrepoints[k, 0], centrepoints[k, 1],
-                                     k])
+            # Get points between the two planes
+            dist_to_first_plane = (ele_dot_prod - d1) / centre_norm
+            dist_to_second_plane = (ele_dot_prod - d2) / centre_norm
 
-            norms = np.dot(elements - plane_origin, plane_normal)
-            idx_list = element_idx[(norms <= 15) & (norms >= 0)]
-            point_data_array[idx_list] = round(thickness[k], 3)
+            idx_list = [
+                idx
+                for idx, (a, b) in enumerate(
+                    zip(
+                        dist_to_first_plane > 0.0,
+                        dist_to_second_plane < 0.0,
+                    )
+                )
+                if a and b
+            ]
+
+            point_data_array[x_idx[idx_list]] = round(thickness[j], 3)
 
     # Add the data dictionary to the mesh
     point_data_dict[point_data_name] = point_data_array
