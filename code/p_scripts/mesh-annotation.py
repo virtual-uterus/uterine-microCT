@@ -167,7 +167,7 @@ if __name__ == "__main__":
     point_data_array = np.zeros((nb_points, 1))
     point_data_name = "thickness"
 
-    tolerance = 5
+    plane_distance = args.plane_distance
 
     for i, horn in enumerate(horns):
         print("Annotating {} horn".format(horn))
@@ -219,7 +219,7 @@ if __name__ == "__main__":
                 centre_vector, np.transpose(elements), plane_distance, centre_norm
             )
 
-            if j <= 20 or j >= len(thickness) - 20:
+            if j <= args.normal_slices or j >= len(thickness) - args.normal_slices:
                 extra_idx = getIndices(
                     np.array([0, 0, 1]), np.transpose(elements), plane_distance, 1
                 )
