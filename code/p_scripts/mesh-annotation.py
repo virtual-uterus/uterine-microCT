@@ -78,6 +78,18 @@ if __name__ == "__main__":
         default="both",
     )
     parser.add_argument(
+        "--normal-slices",
+        type=int,
+        help="number of slices in bottom and top section with normal planes",
+        default=20,
+    )
+    parser.add_argument(
+        "--plane-distance",
+        type=int,
+        help="distance between the origin and the cut planes",
+        default=10,
+    )
+    parser.add_argument(
         "-s",
         "--switch",
         action="store_true",
