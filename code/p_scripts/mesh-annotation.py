@@ -15,14 +15,13 @@ import scipy.io
 import utils.utils as utils
 
 
-def getIndices(normal_vector, elements, d1, d2, centre_norm):
+def getIndices(normal_vector, elements, plane_distance, centre_norm):
     """Finds the indices of the elements to annotate with the thickness.
 
     Arguments:
     normal_vector -- ndarray, normal vector for the plane.
     elements -- ndarray, list of elements in the mesh to sort.
-    d1 -- float, distance to the first plane.
-    d2 -- float, distance to the second plane.
+    plane_distance -- int, distance between origin and cut planes.
     centre_norm -- float, norm of the normal vector.
 
     Return:
@@ -32,8 +31,8 @@ def getIndices(normal_vector, elements, d1, d2, centre_norm):
     ele_dot_prod = np.dot(normal_vector, elements)
 
     # Get points between the two planes
-    dist_to_first_plane = (ele_dot_prod - d1) / centre_norm
-    dist_to_second_plane = (ele_dot_prod - d2) / centre_norm
+    dist_to_first_plane = (ele_dot_prod + plane_distance) / centre_norm
+    dist_to_second_plane = (ele_dot_prod - plane_distance) / centre_norm
 
     idx_list = [
         idx
@@ -194,10 +193,6 @@ if __name__ == "__main__":
                 centre_vector = centre_vectors_norm[j]
                 centre_norm = centre_norms[j][0]
 
-            # Get plane constants
-            d1 = -tolerance
-            d2 = tolerance
-
             # Get the x limited indices
             if horns[i] == "left":
                 x_idx = np.where(mesh.points[:, 0] < x_split)[0]
@@ -209,12 +204,12 @@ if __name__ == "__main__":
             )  # Reduced set of points and recentre
 
             idx_list = getIndices(
-                centre_vector, np.transpose(elements), d1, d2, centre_norm
+                centre_vector, np.transpose(elements), plane_distance, centre_norm
             )
 
             if j <= 20 or j >= len(thickness) - 20:
                 extra_idx = getIndices(
-                    np.array([0, 0, 1]), np.transpose(elements), d1, d2, 1
+                    np.array([0, 0, 1]), np.transpose(elements), plane_distance, 1
                 )
                 idx_list = np.append(idx_list, extra_idx)
             point_data_array[x_idx[idx_list]] = round(thickness[j], 3)
