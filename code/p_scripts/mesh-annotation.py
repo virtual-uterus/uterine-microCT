@@ -205,26 +205,18 @@ if __name__ == "__main__":
                 x_idx = np.where(mesh.points[:, 0] >= x_split)[0]
 
             elements = mesh.points[x_idx] - np.append(
-            )  # Reduced set of points
-            ele_dot_prod = np.dot(centre_vector, np.transpose(elements))
-
-            # Get points between the two planes
-            dist_to_first_plane = (ele_dot_prod - d1) / centre_norm
-            dist_to_second_plane = (ele_dot_prod - d2) / centre_norm
-
-            idx_list = [
-                idx
-                for idx, (a, b) in enumerate(
-                    zip(
-                        dist_to_first_plane > 0.0,
-                        dist_to_second_plane < 0.0,
-                    )
-                )
-                if a and b
-            ]
                 centrepoints[j], j
             )  # Reduced set of points and recentre
 
+            idx_list = getIndices(
+                centre_vector, np.transpose(elements), d1, d2, centre_norm
+            )
+
+            if j <= 20 or j >= len(thickness) - 20:
+                extra_idx = getIndices(
+                    np.array([0, 0, 1]), np.transpose(elements), d1, d2, 1
+                )
+                idx_list = np.append(idx_list, extra_idx)
             point_data_array[x_idx[idx_list]] = round(thickness[j], 3)
 
     # Add the data dictionary to the mesh
