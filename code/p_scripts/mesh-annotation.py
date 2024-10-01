@@ -216,12 +216,14 @@ if __name__ == "__main__":
             )  # Reduced set of points and recentre
 
             idx_list = getIndices(
-                centre_vector, np.transpose(elements), plane_distance, centre_norm
+                centre_vector, np.transpose(
+                    elements), plane_distance, centre_norm
             )
 
             if j <= args.normal_slices or j >= len(thickness) - args.normal_slices:
                 extra_idx = getIndices(
-                    np.array([0, 0, 1]), np.transpose(elements), plane_distance, 1
+                    np.array([0, 0, 1]), np.transpose(
+                        elements), plane_distance, 1
                 )
                 idx_list = np.append(idx_list, extra_idx)
             point_data_array[x_idx[idx_list]] = round(thickness[j], 3)
