@@ -153,8 +153,8 @@ if __name__ == "__main__":
             x_split = (centreline[j, 0] + centreline[j, 4]) / 2
 
             if j >= len(centre_vectors_norm):
-                centre_vector = centre_vectors_norm[j - 1]
-                centre_norm = centre_norms[j - 1][0]
+                centre_vector = np.array([0, 0, 1])
+                centre_norm = 1
             else:
                 centre_vector = centre_vectors_norm[j]
                 centre_norm = centre_norms[j][0]
