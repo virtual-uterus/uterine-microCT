@@ -100,7 +100,6 @@ if __name__ == "__main__":
     # Get the centreline
     centreline_dict = scipy.io.loadmat(thickness_directory + "/centreline.mat")
     centreline = np.transpose(centreline_dict["centreline"])
-    # centreline = np.round(centreline).astype(int)  # Round and convert to int
 
     # Read the mesh file
     print("Loading mesh {}".format(mesh_name + "." + args.extension))
@@ -137,7 +136,7 @@ if __name__ == "__main__":
         else:
             centrepoints = centreline[0: len(thickness), 4:6]
 
-        centrepoints_diff = np.diff(np.round(centrepoints), axis=0)
+        centrepoints_diff = np.diff(centrepoints, axis=0)
         z_components = np.ones((len(centrepoints_diff), 1))
 
         # Create normalised centre vectors
