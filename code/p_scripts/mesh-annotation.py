@@ -150,7 +150,7 @@ if __name__ == "__main__":
         centre_vectors_norm = centre_vectors / centre_norms
 
         for j in range(len(thickness)):
-            x_split = abs(centreline[j, 0] - centreline[j, 4] / 2)
+            x_split = (centreline[j, 0] + centreline[j, 4]) / 2
 
             if j >= len(centre_vectors_norm):
                 centre_vector = centre_vectors_norm[j - 1]
