@@ -178,9 +178,9 @@ if __name__ == "__main__":
 
             # Get the x limited indices
             if horns[i] == "left":
-                x_idx = np.where(abs(mesh.points[:, 0]) < x_split)[0]
+                x_idx = np.where(mesh.points[:, 0] < x_split)[0]
             else:
-                x_idx = np.where(abs(mesh.points[:, 0]) >= x_split)[0]
+                x_idx = np.where(mesh.points[:, 0] >= x_split)[0]
 
             elements = mesh.points[x_idx] - np.append(
                 centrepoints[j], 1
