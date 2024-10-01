@@ -170,7 +170,6 @@ if __name__ == "__main__":
                 x_idx = np.where(mesh.points[:, 0] >= x_split)[0]
 
             elements = mesh.points[x_idx] - np.append(
-                centrepoints[j], 1
             )  # Reduced set of points
             ele_dot_prod = np.dot(centre_vector, np.transpose(elements))
 
@@ -188,6 +187,8 @@ if __name__ == "__main__":
                 )
                 if a and b
             ]
+                centrepoints[j], j
+            )  # Reduced set of points and recentre
 
             point_data_array[x_idx[idx_list]] = round(thickness[j], 3)
 
