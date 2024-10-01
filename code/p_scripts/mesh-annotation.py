@@ -14,6 +14,41 @@ import scipy.io
 
 import utils.utils as utils
 
+
+def getIndices(normal_vector, elements, d1, d2, centre_norm):
+    """Finds the indices of the elements to annotate with the thickness.
+
+    Arguments:
+    normal_vector -- ndarray, normal vector for the plane.
+    elements -- ndarray, list of elements in the mesh to sort.
+    d1 -- float, distance to the first plane.
+    d2 -- float, distance to the second plane.
+    centre_norm -- float, norm of the normal vector.
+
+    Return:
+    idx_list -- list[float], list of indices of the correct elements.
+
+    """
+    ele_dot_prod = np.dot(normal_vector, elements)
+
+    # Get points between the two planes
+    dist_to_first_plane = (ele_dot_prod - d1) / centre_norm
+    dist_to_second_plane = (ele_dot_prod - d2) / centre_norm
+
+    idx_list = [
+        idx
+        for idx, (a, b) in enumerate(
+            zip(
+                dist_to_first_plane > 0.0,
+                dist_to_second_plane < 0.0,
+            )
+        )
+        if a and b
+    ]
+
+    return idx_list
+
+
 if __name__ == "__main__":
     parser = argparse.ArgumentParser(
         description="Annotates a vtu or vtk mesh with the thickness values "
