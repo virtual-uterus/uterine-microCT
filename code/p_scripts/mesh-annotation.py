@@ -159,21 +159,9 @@ if __name__ == "__main__":
                 centre_vector = centre_vectors_norm[j]
                 centre_norm = centre_norms[j][0]
 
-            # Get plane origins points
-            first_plane_origin = np.array(
-                [centrepoints[j, 0], centrepoints[j, 1], j - tolerance]
-            )
-            second_plane_origin = np.array(
-                [
-                    centrepoints[j, 0],
-                    centrepoints[j, 1],
-                    j + tolerance,
-                ]
-            )
-
             # Get plane constants
-            d1 = j - tolerance
-            d2 = j + tolerance
+            d1 = -tolerance
+            d2 = tolerance
 
             # Get the x limited indices
             if horns[i] == "left":
