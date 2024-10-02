@@ -72,6 +72,11 @@ if __name__ == "__main__":
         action="store_true",
         help="flag used if the dataset is not downsampled, default False",
     )
+    parser.add_argument(
+        "--no-plot",
+        action="store_false",
+        help="flag used to plot the results, default True",
+    )
 
     # Parse input arguments
     args = parser.parse_args()
@@ -201,10 +206,11 @@ if __name__ == "__main__":
         pickle.dump(avg_thickness, f)
 
     # Plot everything
-    plots.plotMuscleThickness(avg_thickness, errors)
+    if args.no_plot:
+        plots.plotMuscleThickness(avg_thickness, errors)
 
-    if len(horns) == 2:
-        for horn in horns:
-            plots.plotAngularThickness(
-                {horn: avg_slice_thickness[horn]}, projection=args.polar
-            )
+        if len(horns) == 2:
+            for horn in horns:
+                plots.plotAngularThickness(
+                    {horn: avg_slice_thickness[horn]}, projection=args.polar
+                )
