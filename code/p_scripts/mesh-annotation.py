@@ -25,7 +25,7 @@ def getIndices(normal_vector, elements, plane_distance, centre_norm):
     centre_norm -- float, norm of the normal vector.
 
     Return:
-    idx_list -- list[float], list of indices of the correct elements.
+    idx_list -- np.array[int], list of indices of the correct elements.
 
     """
     ele_dot_prod = np.dot(normal_vector, elements)
@@ -45,7 +45,7 @@ def getIndices(normal_vector, elements, plane_distance, centre_norm):
         if a and b
     ]
 
-    return idx_list
+    return np.array(idx_list, dtype=int)
 
 
 if __name__ == "__main__":
