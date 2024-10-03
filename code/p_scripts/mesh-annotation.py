@@ -196,7 +196,10 @@ if __name__ == "__main__":
         centre_vectors_norm = centre_vectors / centre_norms
 
         for j in range(len(thickness)):
-            x_split = (centreline[j, 0] + centreline[j, 4]) / 2
+            if centreline[j, 0] and centreline[j, 4] > 0:
+                # Only get x_split if there are two horns otherwise
+                # use previous value
+                x_split = (centreline[j, 0] + centreline[j, 4]) / 2
 
             if j >= len(centre_vectors_norm):
                 centre_vector = np.array([0, 0, 1])
