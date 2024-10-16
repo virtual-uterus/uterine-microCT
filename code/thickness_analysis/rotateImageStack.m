@@ -38,8 +38,11 @@ for k = 1:nb_slices
     end
 
     cur_mask = img_stack(:, :, k); % Current mask to rotate
+    binary_mask = imbinarize(cur_mask);
 
-    props = regionprops(imbinarize(cur_mask), ...
+    [labeled_image, ~] = bwlabel(binary_mask);
+
+    props = regionprops(binary_mask, ...
         'Area', 'Centroid', 'PixelList');
     props([props.Area] < proper_size) = []; % Remove false positives
 
@@ -53,8 +56,9 @@ for k = 1:nb_slices
             [~, idx] = min(coords);  % Find the index of the left horn
         end
 
-        cur_mask(props(idx).PixelList(:, 2), ...
-            props(idx).PixelList(:, 1)) = 0; % Remove unrotated horn
+        pixel = props(idx).PixelList(1, :);  % Coordinates of one pixel
+        regionToRemove = labeled_image(pixel(2), pixel(1)); % Get the label
+        cur_mask(labeled_image == regionToRemove) = 0; % Remove horn
     end
 
     % Find centre points
