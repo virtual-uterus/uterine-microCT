@@ -75,7 +75,7 @@ if __name__ == "__main__":
     parser.add_argument(
         "--no-plot",
         action="store_false",
-        help="flag used to plot the results, default True",
+        help="flag used to plot the results, default False",
     )
 
     # Parse input arguments
@@ -113,6 +113,8 @@ if __name__ == "__main__":
     avg_thickness = dict()
     avg_slice_thickness = dict()
     errors = dict()
+    radius_dict = dict()
+    length_dict = dict()
 
     for i, horn in enumerate(horns):
         if args.switch:
@@ -124,7 +126,8 @@ if __name__ == "__main__":
         print("Processing {} horn".format(print_horn))
         print("   Loading mask stack")
         mask_stack = utils.loadImageStack(
-            os.path.join(load_directory, "{}".format(horn)), extension=args.extension
+            os.path.join(load_directory, "{}".format(horn)),
+            extension=args.extension,
         )
 
         nb_imgs = len(mask_stack)
@@ -144,7 +147,11 @@ if __name__ == "__main__":
 
         print("   Estimating muscle thickness")
         muscle_thickness, slice_thickness, radius = projection.estimateMuscleThickness(
-            mask_stack, centreline, args.points, params[horn]["slice_nbs"], horn
+            mask_stack,
+            centreline,
+            args.points,
+            params[horn]["slice_nbs"],
+            horn,
         )
 
         # Estimate horn length
@@ -174,6 +181,7 @@ if __name__ == "__main__":
         radius *= params["scaling_factor"]
         length *= params["scaling_factor"]
 
+        # Populate dictionnaries for pickling data
         avg_thickness[print_horn] = utils.movingAverage(
             muscle_thickness, muscle_win_size
         ).round(5)
@@ -181,6 +189,8 @@ if __name__ == "__main__":
             slice_thickness, circular_win_size
         ).round(5)
         errors[print_horn] = utils.movingStd(muscle_thickness, std_win_size)
+        radius_dict[print_horn] = radius
+        length_dict[print_horn] = length
 
         print(
             "{} horn muscle thickness: {:.2f} \u00b1 {:.2f} mm".format(
@@ -204,6 +214,14 @@ if __name__ == "__main__":
     # Save muscle thickness
     with open(load_directory + "/muscle_thickness.pkl", "wb") as f:
         pickle.dump(avg_thickness, f)
+
+    # Save radius
+    with open(load_directory + "/radius.pkl", "wb") as f:
+        pickle.dump(radius_dict, f)
+
+    # Save horn length
+    with open(load_directory + "/length.pkl", "wb") as f:
+        pickle.dump(length_dict, f)
 
     # Plot everything
     if args.no_plot:
