@@ -5,7 +5,7 @@ extension="png"
 # Dataset image parameters
 nb_pixel_x=2071
 nb_pixel_y=3012
-resolution=6.008106
+resolution=1.500872
 
 # Downsampling parameters
 start_nb=1000
@@ -22,16 +22,16 @@ ylim = [1, 3012]
 [ST]
 [ST.diffusion]
 	erosion_threshold=10
-	erosion_radius=4
+	erosion_radius=2
 	diffusion_distance=2
 	
 [ST.structure_tensor]
-	derivative_template_width=5
-	smoothing_template_width=5
+	derivative_template_width=3
+	smoothing_template_width=3
 	
 [ST.streamlines]
-	level=5
-	DJ=12
-	DI=12
-	DK=12
+	level=4
+	DJ=6
+	DI=6
+	DK=6
 
