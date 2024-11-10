@@ -192,7 +192,7 @@ script, use the --help flag:
 ```bash
 python3 uCT-analysis.py --help
 ```
-The average thickness, the average radius, and the length of each horn will be displayed on the terminal. The plot of the thickness 
+The average thickness, the average radius, and the length of each horn will be displayed on the terminal. Only the slices after the horns are separated are considered in the calculations but all values are saved in a .pkl file. The plot of the thickness 
 variations and the plots of the angular thickness of the __4__ slices selected in the configuration file
 will be displayed. The angular and average thicknesses will be saved in the muscle_segmentation folder.
 
