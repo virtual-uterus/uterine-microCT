@@ -38,23 +38,15 @@ def plotData(data, metric):
         nb_samples = len(data[stage])
         jitter = np.random.uniform(-0.25, 0.25, nb_samples)
 
-        if metric == "length":
-            plt.scatter(
-                (i + 1) * np.ones(nb_samples) + jitter,
-                data[stage],
-                c=COLOURS[stage],
-            )
-            plt.ylim([0, 6])
-        else:
-            plt.errorbar(
-                (i + 1) * np.ones(nb_samples) + jitter,
-                data[stage][:, 0],
-                data[stage][:, 1],
-                c=COLOURS[stage],
-                marker=".",
-                linestyle="",
-                capsize=3.0,
-            )
+        plt.errorbar(
+            (i + 1) * np.ones(nb_samples) + jitter,
+            data[stage][:, 0],
+            data[stage][:, 1],
+            c=COLOURS[stage],
+            marker=".",
+            linestyle="",
+            capsize=3.0,
+        )
 
     # Reset x-axis ticks
     plt.xticks(
