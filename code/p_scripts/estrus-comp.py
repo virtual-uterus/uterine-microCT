@@ -14,13 +14,18 @@ import matplotlib.pyplot as plt
 import utils.utils as utils
 
 COLOURS = {"proestrus": "r", "estrus": "b", "metestrus": "g", "diestrus": "k"}
+Y_LABELS = {
+    "muscle_thickness": "Normalized muscle thickness (mm.mg$^{-1}$)",
+    "radius": "Normalized horn radius (mm.mg$^{-1}$)",
+    "length": "Normalized horn length (mm.mg$^{-1}$)",
+}
 
 
-def plotMetric(metrics):
-    """Plots the selected metrics.
+def plotData(data, metric):
+    """Plots the selected data.
 
     Arguments:
-    metrics -- dict(list(float))), dictionnary with estrus phases as keys and
+    data -- dict(list(float))), dictionnary with estrus phases as keys and
     lists of metric values as values
 
     Return:
@@ -28,14 +33,14 @@ def plotMetric(metrics):
     """
     fig, ax = plt.subplots(dpi=300)
 
-    for i, stage in enumerate(metrics.keys()):
-        nb_samples = len(metrics[stage])
+    for i, stage in enumerate(data.keys()):
+        nb_samples = len(data[stage])
         jitter = np.random.uniform(-0.15, 0.15, nb_samples)
 
         plt.errorbar(
             (i + 1) * np.ones(nb_samples) + jitter,
-            metrics[stage][:, 0],
-            metrics[stage][:, 1],
+            data[stage][:, 0],
+            data[stage][:, 1],
             c=COLOURS[stage],
             marker=".",
             linestyle="",
@@ -45,11 +50,12 @@ def plotMetric(metrics):
     # Reset x-axis ticks
     plt.xticks(
         ticks=[1, 2, 3, 4],
-        labels=[estrus.capitalize() for estrus in metrics.keys()],
+        labels=[estrus.capitalize() for estrus in data.keys()],
     )
     plt.xlim([0.5, 4.5])
     plt.ylim(bottom=0)
 
+    plt.ylabel(Y_LABELS[metric])
     plt.show()
 
 
@@ -153,4 +159,4 @@ if __name__ == "__main__":
             # Normalise by weight
             metrics[phase][i] *= weight
         metrics[phase] = np.array(metrics[phase])  # Convert to np array
-    plotMetric(metrics)
+    plotData(metrics, args.metric)
