@@ -32,6 +32,7 @@ def plotData(data, metric):
 
     """
     fig, ax = plt.subplots(dpi=300)
+    np.random.seed(14)
 
     for i, stage in enumerate(data.keys()):
         nb_samples = len(data[stage])
