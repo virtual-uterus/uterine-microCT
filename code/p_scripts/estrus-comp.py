@@ -146,7 +146,13 @@ if __name__ == "__main__":
 
             if args.metric == "length":
                 metrics[phase].append(
-                    round(np.mean(list(metric_data.values())), 2),
+                    np.round(
+                        [
+                            np.mean(list(metric_data.values())),
+                            np.std(list(metric_data.values())),
+                        ],
+                        2,
+                    ),
                 )
             else:
                 mean_data = [
