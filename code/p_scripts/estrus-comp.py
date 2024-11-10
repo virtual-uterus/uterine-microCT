@@ -30,7 +30,7 @@ def plotMetric(metrics):
 
     for i, stage in enumerate(metrics.keys()):
         nb_samples = len(metrics[stage])
-        jitter = np.random.uniform(-0.25, 0.25, nb_samples)
+        jitter = np.random.uniform(-0.15, 0.15, nb_samples)
 
         plt.scatter(
             (i + 1) * np.ones((1, nb_samples)) + jitter,
