@@ -15,9 +15,9 @@ import utils.utils as utils
 
 COLOURS = {"proestrus": "r", "estrus": "b", "metestrus": "g", "diestrus": "k"}
 Y_LABELS = {
-    "muscle_thickness": "Normalized muscle thickness (mm.mg$^{-1}$)",
-    "radius": "Normalized horn radius (mm.mg$^{-1}$)",
-    "length": "Normalized horn length (mm.mg$^{-1}$)",
+    "muscle_thickness": "Normalised muscle thickness (mm.mg$^{-1}$)",
+    "radius": "Normalised horn radius (mm.mg$^{-1}$)",
+    "length": "Normalised horn length (mm.mg$^{-1}$)",
 }
 
 
