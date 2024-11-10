@@ -164,6 +164,6 @@ if __name__ == "__main__":
                 )
 
             # Normalise by weight
-            metrics[phase][i] *= weight
+            metrics[phase][i] /= weight
         metrics[phase] = np.array(metrics[phase])  # Convert to np array
     plotData(metrics, args.metric)
