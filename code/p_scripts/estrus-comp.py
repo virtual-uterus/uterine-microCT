@@ -32,10 +32,14 @@ def plotMetric(metrics):
         nb_samples = len(metrics[stage])
         jitter = np.random.uniform(-0.15, 0.15, nb_samples)
 
-        plt.scatter(
-            (i + 1) * np.ones((1, nb_samples)) + jitter,
-            metrics[stage],
+        plt.errorbar(
+            (i + 1) * np.ones(nb_samples) + jitter,
+            metrics[stage][:, 0],
+            metrics[stage][:, 1],
             c=COLOURS[stage],
+            marker=".",
+            linestyle="",
+            capsize=3.0,
         )
 
     # Reset x-axis ticks
@@ -107,7 +111,9 @@ if __name__ == "__main__":
             else:
                 # If not use top-level parameter file
                 set_param_file = os.path.join(
-                    data_directory, base_name + ".toml")
+                    data_directory,
+                    base_name + ".toml",
+                )
 
             set_params = utils.parseTOML(set_param_file)
             split_nb = set_params["split_nb"]
@@ -115,7 +121,9 @@ if __name__ == "__main__":
 
             # Read metric data
             metric_directory = os.path.join(
-                data_directory, "muscle_segmentation/")
+                data_directory,
+                "muscle_segmentation/",
+            )
             metric_data = np.load(
                 metric_directory + args.metric + ".pkl",
                 allow_pickle=True,
@@ -123,15 +131,26 @@ if __name__ == "__main__":
 
             if args.metric == "length":
                 metrics[phase].append(
-                    round(np.mean(list(metric_data.values())), 2))
+                    round(np.mean(list(metric_data.values())), 2),
+                )
             else:
                 mean_data = [
                     np.mean(list(metric_data.values())[0]),
                     np.mean(list(metric_data.values())[1]),
                 ]
-                metrics[phase].append(round(np.mean(mean_data), 2))
+                std_data = [
+                    np.std(list(metric_data.values())[0]),
+                    np.std(list(metric_data.values())[1]),
+                ]
+
+                # Compute average std
+                std_mean = np.sqrt(sum(np.power(std_data, 2)) / len(std_data))
+
+                metrics[phase].append(
+                    np.round([np.mean(mean_data), std_mean], 2),
+                )
 
             # Normalise by weight
             metrics[phase][i] *= weight
-
+        metrics[phase] = np.array(metrics[phase])  # Convert to np array
     plotMetric(metrics)
