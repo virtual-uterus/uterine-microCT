@@ -148,12 +148,12 @@ if __name__ == "__main__":
                 )
             else:
                 mean_data = [
-                    np.mean(list(metric_data.values())[0]),
-                    np.mean(list(metric_data.values())[1]),
+                    np.mean(list(metric_data.values())[0][split_nb:]),
+                    np.mean(list(metric_data.values())[1][split_nb:]),
                 ]
                 std_data = [
-                    np.std(list(metric_data.values())[0]),
-                    np.std(list(metric_data.values())[1]),
+                    np.std(list(metric_data.values())[0][split_nb:]),
+                    np.std(list(metric_data.values())[1][split_nb:]),
                 ]
 
                 # Compute average std
