@@ -111,7 +111,7 @@ if __name__ == "__main__":
 
             set_params = utils.parseTOML(set_param_file)
             split_nb = set_params["split_nb"]
-            weight = 1000 / set_params["weight"]
+            weight = set_params["weight"] * 1e-3  # Convert to mg
 
             # Read metric data
             metric_directory = os.path.join(
