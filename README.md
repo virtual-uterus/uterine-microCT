@@ -17,8 +17,9 @@ This repository contains code to analyse $`\mu`$CT datasets of rat uteri and use
        2. [Fibre analysis](#fibre)
        3. [Mesh generation](#mesh)
     5. [Visualisation](#visualisation)
-5. [Testing](#testing)
-6. [Data availability](#data-availability)
+5. [Estrus comparison](#comp)
+6. [Testing](#testing)
+7. [Data availability](#data-availability)
 
 
 <a id="requirements"></a>
@@ -260,6 +261,17 @@ AWA015_PTA_1_Rec_Trans_thickness_mesh.com (A) files which show the thickness of 
 AWA015_PTA_1_Rec_Trans_thickness_mesh.com full view (A) and the AWA015_PTA_1_Rec_Trans_thickness_mesh.com clipped view (B) 
 com files.")
 
+<a id="comp"></a>
+## Estrus comparison
+The results in the different stages of the estrus cycle can be compared using the __estrus_comp.py__ script. To see the arguments and options 
+of the script, use the --help flag:
+```bash
+python3 estrus_comp.py --help
+```
+
+The results are normalised by the weight of the animal (in mg) and then plotted. Below is an example of the estrus comparison results of the muscle thickness (A) and the horn radius (B).
+
+![alt text](img/estrus_comp.png "Example of the estrus comparison results of the muscle thickness (A) and the horn radius (B)")
 <a id="testing"></a>
 ## Testing
 Some scripts have been written to test certain functions of the workflow and are located in the code/tests folder.
