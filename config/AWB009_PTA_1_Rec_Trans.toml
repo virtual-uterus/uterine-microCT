@@ -1,21 +1,24 @@
 # Top level parameters
-prefix="AWA015_PTA_1"
+prefix="AWB009_PTA_1"
 extension="png"
 
 # Dataset image parameters
-nb_pixel_x=2192
-nb_pixel_y=4496
-resolution=10.943253
+nb_pixel_x=2452
+nb_pixel_y=2452
+resolution=10.000018
 
 # Downsampling parameters
-start_nb=310
-end_nb=2130
+start_nb=616
+end_nb=2736
 
 nb_used_slices=5 # Number of slices for finding centre vectors
 
 # Region of interest
-xlim = [632, 1500] 
-ylim = [700, 3152]
+xlim = [1, 2452] 
+ylim = [1, 2452]
+
+# Animal weight for normalisation
+weight=247 # in grams
 
 # Structure tensor parameters
 [ST]

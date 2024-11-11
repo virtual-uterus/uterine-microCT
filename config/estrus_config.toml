@@ -1,0 +1,5 @@
+[phases]
+    proestrus=["AWA026", "AWB018"] 
+    estrus=["AWB011", "AWA033"]
+    metestrus=["AWB008", "AWA030"]
+    diestrus=["AWB003", "AWB012"]

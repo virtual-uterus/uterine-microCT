@@ -1,10 +1,10 @@
 # Top level parameters
-prefix="AWA015_PTA_1"
+prefix="TestImage001"
 extension="png"
 
 # Dataset image parameters
-nb_pixel_x=2192
-nb_pixel_y=4496
+nb_pixel_x=701
+nb_pixel_y=701
 resolution=10.943253
 
 # Downsampling parameters

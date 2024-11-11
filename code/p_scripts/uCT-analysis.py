@@ -23,8 +23,10 @@ if __name__ == "__main__":
     )
 
     parser.add_argument(
-        "dir_path", type=str, metavar="dir-path", help="path from BASE "
-        "to the dataset"
+        "dir_path",
+        type=str,
+        metavar="dir-path",
+        help="path from BASE " "to the dataset",
     )
     parser.add_argument(
         "base_name", type=str, metavar="base-name", help="name of the dataset"
@@ -70,6 +72,11 @@ if __name__ == "__main__":
         action="store_true",
         help="flag used if the dataset is not downsampled, default False",
     )
+    parser.add_argument(
+        "--no-plot",
+        action="store_false",
+        help="flag used to plot the results, default False",
+    )
 
     # Parse input arguments
     args = parser.parse_args()
@@ -89,6 +96,7 @@ if __name__ == "__main__":
 
     # Load parameters
     params = utils.parseTOML(param_file)
+    split_nb = params["split_nb"]  # Get horn separation slice
     params = params["thickness"]  # Extract the thickness parameters
 
     # Add the muscle segmentation to the load directory
@@ -105,13 +113,21 @@ if __name__ == "__main__":
     avg_thickness = dict()
     avg_slice_thickness = dict()
     errors = dict()
+    radius_dict = dict()
+    length_dict = dict()
 
     for i, horn in enumerate(horns):
-        print("Processing {} horn".format(horn))
+        if args.switch:
+            print_horn = horns[i - 1]
+
+        else:
+            print_horn = horn
+
+        print("Processing {} horn".format(print_horn))
         print("   Loading mask stack")
         mask_stack = utils.loadImageStack(
-            os.path.join(
-                load_directory, "{}".format(horn)), extension=args.extension
+            os.path.join(load_directory, "{}".format(horn)),
+            extension=args.extension,
         )
 
         nb_imgs = len(mask_stack)
@@ -130,34 +146,34 @@ if __name__ == "__main__":
         nb_slices = len(centreline) - 1  # Number of slices in the horn
 
         print("   Estimating muscle thickness")
-        muscle_thickness, slice_thickness, radius = \
-            projection.estimateMuscleThickness(
-                mask_stack, centreline, args.points,
-                params[horn]["slice_nbs"], horn
-            )
+        muscle_thickness, slice_thickness, radius = projection.estimateMuscleThickness(
+            mask_stack,
+            centreline,
+            args.points,
+            params[horn]["slice_nbs"],
+            horn,
+        )
 
         # Estimate horn length
         print("   Estimating horn length")
-        centreline_dict = scipy.io.loadmat(
-            load_directory + "/centreline.mat"
-        )
+        centreline_dict = scipy.io.loadmat(load_directory + "/centreline.mat")
         centreline = np.transpose(centreline_dict["centreline"])
-        centreline = np.round(centreline).astype(int)  # Convert to int
 
         match horn:
             case "left":
-                ind = np.where(centreline[:nb_slices, 0:4] == 0)[0]
-                horn_start = np.append(centreline[ind[0], 0:2], 0)
-                # Divide len by 2 because np.where doubles the length
-                horn_end = np.append(centreline[ind[-1], 0:2], len(ind) / 2)
-
+                ind = np.where(centreline[:nb_slices, 0] != 0)[0]
+                last_slice = ind[-1]  # Get the last slice index of horn
+                centre_vectors = np.diff(centreline[:last_slice, 0:2], axis=0)
             case "right":
-                ind = np.where(centreline[:nb_slices, 2:6] == 0)[0]
-                horn_start = np.append(centreline[ind[0], 4:6], 0)
-                # Divide len by 2 because np.where doubles the length
-                horn_end = np.append(centreline[ind[-1], 4:6], len(ind) / 2)
+                ind = np.where(centreline[:nb_slices, 5] != 0)[0]
+                last_slice = ind[-1]  # Get the last slice index of horn
+                centre_vectors = np.diff(centreline[:last_slice, 4:6], axis=0)
 
-        length = np.linalg.norm(horn_end - horn_start)
+        coordinates = np.ones(
+            (last_slice - split_nb - 1, 3))  # Account for diff
+        # Add the centre vector coordinates
+        coordinates[:, 0:2] = centre_vectors[split_nb:]
+        length = np.sum(np.linalg.norm(coordinates, axis=1))
 
         # Rescale the thickness to mm
         muscle_thickness *= params["scaling_factor"]
@@ -165,38 +181,31 @@ if __name__ == "__main__":
         radius *= params["scaling_factor"]
         length *= params["scaling_factor"]
 
-        print(
-            "{} horn muscle thickness: {:.2f} \u00B1 {:.2f} mm".format(
-                horn, np.mean(muscle_thickness), np.std(muscle_thickness)
-            )
-        )
-        print(
-            "{} horn radius: {:.2f} \u00B1 {:.2f} mm".format(
-                horn, np.mean(radius), np.std(radius)
-            )
-        )
-        print(
-            "{} horn length: {:.2f} mm".format(
-                horn, length
-            )
-        )
+        # Populate dictionnaries for pickling data
+        avg_thickness[print_horn] = utils.movingAverage(
+            muscle_thickness, muscle_win_size
+        ).round(5)
+        avg_slice_thickness[print_horn] = utils.circularAverage(
+            slice_thickness, circular_win_size
+        ).round(5)
+        errors[print_horn] = utils.movingStd(muscle_thickness, std_win_size)
+        radius_dict[print_horn] = radius
+        length_dict[print_horn] = length
 
-        if args.switch:
-            avg_thickness[horns[i - 1]] = utils.movingAverage(
-                muscle_thickness, muscle_win_size
-            ).round(5)
-            avg_slice_thickness[horns[i - 1]] = utils.circularAverage(
-                slice_thickness, circular_win_size
-            ).round(5)
-            errors[horns[i - 1]] = utils.movingStd(muscle_thickness,
-                                                   std_win_size)
-
-        else:
-            avg_thickness[horn] = utils.movingAverage(
-                muscle_thickness, muscle_win_size).round(5)
-            avg_slice_thickness[horn] = utils.circularAverage(
-                slice_thickness, circular_win_size).round(5)
-            errors[horn] = utils.movingStd(muscle_thickness, std_win_size)
+        print(
+            "{} horn muscle thickness: {:.2f} \u00b1 {:.2f} mm".format(
+                print_horn,
+                np.mean(muscle_thickness[split_nb:]),
+                np.std(muscle_thickness[split_nb:]),
+            )
+        )
+        print(
+            "{} horn radius: {:.2f} \u00b1 {:.2f} mm".format(
+                print_horn, np.mean(radius[split_nb:]), np.std(
+                    radius[split_nb:])
+            )
+        )
+        print("{} horn length: {:.2f} mm".format(print_horn, length))
 
     # Save angular thickness
     with open(load_directory + "/angular_thickness.pkl", "wb") as f:
@@ -206,11 +215,20 @@ if __name__ == "__main__":
     with open(load_directory + "/muscle_thickness.pkl", "wb") as f:
         pickle.dump(avg_thickness, f)
 
-    # Plot everything
-    plots.plotMuscleThickness(avg_thickness, errors)
+    # Save radius
+    with open(load_directory + "/radius.pkl", "wb") as f:
+        pickle.dump(radius_dict, f)
 
-    if len(horns) == 2:
-        for horn in horns:
-            plots.plotAngularThickness(
-                {horn: avg_slice_thickness[horn]}, projection=args.polar
-            )
+    # Save horn length
+    with open(load_directory + "/length.pkl", "wb") as f:
+        pickle.dump(length_dict, f)
+
+    # Plot everything
+    if args.no_plot:
+        plots.plotMuscleThickness(avg_thickness, errors)
+
+        if len(horns) == 2:
+            for horn in horns:
+                plots.plotAngularThickness(
+                    {horn: avg_slice_thickness[horn]}, projection=args.polar
+                )
