@@ -1,5 +1,6 @@
 # Ignore data folder
 data/
+figures/
 
 # Ignore python swp and cache
 code/p_scripts/*.swp

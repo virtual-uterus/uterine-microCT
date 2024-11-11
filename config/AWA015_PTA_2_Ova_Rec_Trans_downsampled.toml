@@ -5,7 +5,7 @@ extension="png"
 # Dataset parameters
 nb_pixel_x=518
 nb_pixel_y=753
-resolution=44.000000
+resolution=6.000000
 
 # Downsampling parameters (from the full dataset) 
 start_nb=310
@@ -50,10 +50,10 @@ ylim = [1, 753]
 	morph_size=2
 	neighborhood_size=3
 
-# Thickness analysis parameters (unused)
+# Thickness analysis parameters
 [thickness]
-	start_nb = 74 # Slice to start rotation
-	scaling_factor = 0.043773012 # in mm
+	start_nb = 326 # Slice to start rotation
+	scaling_factor = 0.006 # in mm
 	
 [thickness.left]
 	end_nb = 301 # Slice to end rotation
@@ -69,14 +69,14 @@ ylim = [1, 753]
 [ST.diffusion]
 	erosion_threshold=5
 	erosion_radius=3
-	diffusion_distance=5
+	diffusion_distance=15
 	
 [ST.structure_tensor]
-	derivative_template_width=3
-	smoothing_template_width=3
+	derivative_template_width=5
+	smoothing_template_width=5
 	
 [ST.streamlines]
-	level=4
+	level=5
 	DJ=3
 	DI=3
 	DK=3

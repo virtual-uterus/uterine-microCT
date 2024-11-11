@@ -1,0 +1,40 @@
+# Top level parameters
+prefix="AWB002_PTA_1"
+extension="png"
+
+# Dataset parameters
+nb_pixel_x=613
+nb_pixel_y=613
+resolution=40.000000
+
+# Downsampling parameters (from the full dataset) 
+start_nb=453
+end_nb=2600
+
+nb_used_slices=5 # Number of slices for finding centre vectors
+
+# Region of interest
+xlim = [1, 2452] 
+ylim = [1, 2452]
+
+# Animal weight for normalisation
+weight=272 # in grams
+
+# Structure tensor parameters
+[ST]
+
+[ST.diffusion]
+	erosion_threshold=1
+	erosion_radius=1
+	diffusion_distance=3
+	
+[ST.structure_tensor]
+	derivative_template_width=5
+	smoothing_template_width=5
+	
+[ST.streamlines]
+	level=4
+	DJ=3
+	DI=3
+	DK=3
+
