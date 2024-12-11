@@ -90,6 +90,12 @@ if __name__ == "__main__":
         default=10,
     )
     parser.add_argument(
+        "--upsample-factor",
+        type=int,
+        help="factor used for upsampling",
+        default=4,
+    )
+    parser.add_argument(
         "-s",
         "--switch",
         action="store_true",
@@ -116,7 +122,9 @@ if __name__ == "__main__":
         utils.HOME, utils.BASE, args.data_dir, args.base_name
     )
     mesh_name = os.path.join(
-        mesh_directory, args.base_name + "_volumetric_mesh")
+        mesh_directory,
+        args.base_name + "_volumetric_mesh",
+    )
 
     if not args.not_d:
         # If the dataset is downsampled
@@ -127,14 +135,18 @@ if __name__ == "__main__":
 
     else:
         param_file = os.path.join(
-            thickness_directory, args.base_name + ".toml")
+            thickness_directory,
+            args.base_name + ".toml",
+        )
 
     # Load parameters
     params = utils.parseTOML(param_file)
 
     # Add the muscle segmentation to the load directory
     thickness_directory = os.path.join(
-        thickness_directory, "muscle_segmentation")
+        thickness_directory,
+        "muscle_segmentation",
+    )
 
     # Convert both to left and right
     if args.horn == "both":
@@ -152,8 +164,7 @@ if __name__ == "__main__":
     mesh = meshio.read(mesh_name + "." + args.extension)
     nb_points = len(mesh.points)
 
-    # Re-centre z coordinates of the mesh with origin
-    mesh.points[:, 2] = mesh.points[:, 2] - min(mesh.points[:, 2])
+    # Swap because of image coordinates
     mesh.points[:, 0] = -mesh.points[:, 0]
     mesh.points[:, 1] = -mesh.points[:, 1]
 
@@ -178,9 +189,9 @@ if __name__ == "__main__":
         thickness = thickness_data[horn]
 
         if horns[i] == "left":
-            centrepoints = centreline[0: len(thickness), 0:2]
+            centrepoints = centreline[0 : len(thickness), 0:2]
         else:
-            centrepoints = centreline[0: len(thickness), 4:6]
+            centrepoints = centreline[0 : len(thickness), 4:6]
 
         centrepoints_diff = np.diff(centrepoints, axis=0)
         z_components = np.ones((len(centrepoints_diff), 1))
@@ -194,6 +205,8 @@ if __name__ == "__main__":
             centre_norms, centre_vectors.shape
         )  # Reshape for division
         centre_vectors_norm = centre_vectors / centre_norms
+
+        max_slices = len(thickness) - args.normal_slices
 
         for j in range(len(thickness)):
             if centreline[j, 0] and centreline[j, 4] > 0:
@@ -219,14 +232,18 @@ if __name__ == "__main__":
             )  # Reduced set of points and recentre
 
             idx_list = getIndices(
-                centre_vector, np.transpose(
-                    elements), plane_distance, centre_norm
+                centre_vector,
+                np.transpose(elements),
+                plane_distance,
+                centre_norm,
             )
 
-            if j <= args.normal_slices or j >= len(thickness) - args.normal_slices:
+            if j <= args.normal_slices or j >= max_slices:
                 extra_idx = getIndices(
-                    np.array([0, 0, 1]), np.transpose(
-                        elements), plane_distance, 1
+                    np.array([0, 0, 1]),
+                    np.transpose(elements),
+                    plane_distance,
+                    1,
                 )
                 idx_list = np.append(idx_list, extra_idx)
             point_data_array[x_idx[idx_list]] = round(thickness[j], 3)
@@ -238,6 +255,11 @@ if __name__ == "__main__":
     # Flip mesh back to original position
     mesh.points[:, 0] = -mesh.points[:, 0]
     mesh.points[:, 1] = -mesh.points[:, 1]
+
+    # Scale and translate to fit the fibre analysis
+    mesh.points[:, 0] += params["ylim"][0] - 1
+    mesh.points[:, 1] += params["xlim"][0] - 2
+    mesh.points *= args.upsample_factor
 
     # Save new mesh
     print("Saving mesh {}".format(mesh_name + "_annotated." + args.extension))
