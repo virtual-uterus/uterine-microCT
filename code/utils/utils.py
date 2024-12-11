@@ -55,7 +55,13 @@ def loadImageStack(dir_path, extension="png"):
     return img_stack
 
 
-def saveImageStack(img_stack, save_path, img_prefix, start_nb=0, extension="png"):
+def saveImageStack(
+    img_stack,
+    save_path,
+    img_prefix,
+    start_nb=0,
+    extension="png",
+):
     """Saves the images in the stack to the save directory
 
     Arguments:
