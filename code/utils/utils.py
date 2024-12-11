@@ -518,9 +518,9 @@ def writeExNode(file_path, nodes, thickness=None):
             f.write("Node: {}\n".format(i + 1))
             f.write(
                 " {} {} {}\n".format(
-                    nodes[i][0] * 4,
-                    nodes[i][1] * 4,
-                    nodes[i][2] * 4,
+                    nodes[i][0],
+                    nodes[i][1],
+                    nodes[i][2],
                 )
             )
 
