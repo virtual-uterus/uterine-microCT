@@ -97,6 +97,7 @@ if __name__ == "__main__":
     # Load parameters
     params = utils.parseTOML(param_file)
     split_nb = params["split_nb"]  # Get horn separation slice
+    weight = params["weight"] * 1e-3  # Weight in mg for normalisation
     params = params["thickness"]  # Extract the thickness parameters
 
     # Add the muscle segmentation to the load directory
@@ -206,6 +207,10 @@ if __name__ == "__main__":
             )
         )
         print("{} horn length: {:.2f} mm".format(print_horn, length))
+
+        # Normalise by weight
+        avg_thickness[print_horn] /= weight
+        radius_dict[print_horn] /= weight
 
     # Save angular thickness
     with open(load_directory + "/angular_thickness.pkl", "wb") as f:

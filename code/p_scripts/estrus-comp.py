@@ -124,7 +124,6 @@ if __name__ == "__main__":
 
             set_params = utils.parseTOML(set_param_file)
             split_nb = set_params["split_nb"]
-            weight = set_params["weight"] * 1e-3  # Convert to mg
 
             # Read metric data
             metric_directory = os.path.join(
@@ -163,7 +162,5 @@ if __name__ == "__main__":
                     np.round([np.mean(mean_data), std_mean], 2),
                 )
 
-            # Normalise by weight
-            metrics[phase][i] /= weight
         metrics[phase] = np.array(metrics[phase])  # Convert to np array
     plotData(metrics, args.metric)
