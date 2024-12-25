@@ -32,11 +32,11 @@ def plotData(data, metric):
 
     """
     fig, ax = plt.subplots(dpi=300)
-    np.random.seed(14)
 
     for i, stage in enumerate(data.keys()):
         nb_samples = len(data[stage])
-        jitter = np.random.uniform(-0.25, 0.25, nb_samples)
+        np.random.seed(12)  # Reset random seed for all stages to be identical
+        jitter = np.random.uniform(-0.1, 0.1, nb_samples)
 
         plt.errorbar(
             (i + 1) * np.ones(nb_samples) + jitter,
