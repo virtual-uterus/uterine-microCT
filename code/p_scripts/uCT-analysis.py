@@ -18,15 +18,14 @@ import utils.utils as utils
 
 if __name__ == "__main__":
     parser = argparse.ArgumentParser(
-        description="Determines the thickness of the muscle layers "
-        "from a uCT dataset"
+        description="Determines the thickness of the muscle layers from a uCT dataset"
     )
 
     parser.add_argument(
         "dir_path",
         type=str,
         metavar="dir-path",
-        help="path from BASE " "to the dataset",
+        help="path from BASE to the dataset",
     )
     parser.add_argument(
         "base_name", type=str, metavar="base-name", help="name of the dataset"
@@ -81,14 +80,12 @@ if __name__ == "__main__":
     # Parse input arguments
     args = parser.parse_args()
 
-    load_directory = os.path.join(
-        utils.HOME, utils.BASE, args.dir_path, args.base_name)
+    load_directory = os.path.join(utils.HOME, utils.BASE, args.dir_path, args.base_name)
 
     if not args.not_d:
         # If the dataset is downsampled
         load_directory = os.path.join(load_directory, "downsampled")
-        param_file = os.path.join(
-            load_directory, args.base_name + "_downsampled.toml")
+        param_file = os.path.join(load_directory, args.base_name + "_downsampled.toml")
 
     else:
         # If not use top-level parameter file
@@ -112,6 +109,7 @@ if __name__ == "__main__":
 
     # Dicts for results of both horns
     avg_thickness = dict()
+    normalised_thickness = dict()
     avg_slice_thickness = dict()
     errors = dict()
     radius_dict = dict()
@@ -170,8 +168,7 @@ if __name__ == "__main__":
                 last_slice = ind[-1]  # Get the last slice index of horn
                 centre_vectors = np.diff(centreline[:last_slice, 4:6], axis=0)
 
-        coordinates = np.ones(
-            (last_slice - split_nb - 1, 3))  # Account for diff
+        coordinates = np.ones((last_slice - split_nb - 1, 3))  # Account for diff
         # Add the centre vector coordinates
         coordinates[:, 0:2] = centre_vectors[split_nb:]
         length = np.sum(np.linalg.norm(coordinates, axis=1))
@@ -202,14 +199,13 @@ if __name__ == "__main__":
         )
         print(
             "{} horn radius: {:.2f} \u00b1 {:.2f} mm".format(
-                print_horn, np.mean(radius[split_nb:]), np.std(
-                    radius[split_nb:])
+                print_horn, np.mean(radius[split_nb:]), np.std(radius[split_nb:])
             )
         )
         print("{} horn length: {:.2f} mm".format(print_horn, length))
 
         # Normalise by weight
-        avg_thickness[print_horn] /= weight
+        normalised_thickness[print_horn] = avg_thickness[print_horn] / weight
         radius_dict[print_horn] /= weight
 
     # Save angular thickness
@@ -218,7 +214,7 @@ if __name__ == "__main__":
 
     # Save muscle thickness
     with open(load_directory + "/muscle_thickness.pkl", "wb") as f:
-        pickle.dump(avg_thickness, f)
+        pickle.dump(normalised_thickness, f)
 
     # Save radius
     with open(load_directory + "/radius.pkl", "wb") as f:
