@@ -8,6 +8,10 @@
 import matplotlib.pyplot as plt
 import numpy as np
 
+LEFT = 0.22
+BOTTOM = 0.17
+RIGHT = 0.80
+
 
 def plotProjectionPoints(img, centre, projection_points):
     """Plots the centre point and projection points of an image
@@ -63,19 +67,18 @@ def plotMuscleThickness(muscle_thickness, errors):
 
     # Reset x-axis ticks
     plt.xticks(
-        ticks=[0, 0.2, 0.6, 1],
+        ticks=[0, 0.25, 0.6, 1],
         labels=["Cervix", "Cervical end", "Centre", "Ovarian end"],
     )
 
-    ax.tick_params(length=6, width=2, labelsize=12)
-
-    plt.ylim([0, 1])
     plt.xlim([0, 1])
-    plt.xlabel("Locations", fontsize=12)
-    plt.ylabel("Muscle thickness (mm)", fontsize=12)
+    plt.ylim([0, 1])
+    plt.xlabel("Locations")
+    plt.ylabel("Muscle thickness (mm)")
     plt.title("Average thickness in the uterus")
     plt.legend()
 
+    plt.subplots_adjust(left=LEFT, right=RIGHT, bottom=BOTTOM)
     plt.show()
 
 
@@ -94,8 +97,10 @@ def plotAngularThickness(slice_thickness, projection=False, uCT_flag=True):
 
     """
     fig, ax = plt.subplots(
-        len(slice_thickness.keys()), 1, subplot_kw={"polar": projection},
-        dpi=300
+        len(slice_thickness.keys()),
+        1,
+        subplot_kw={"polar": projection},
+        dpi=300,
     )
 
     if not hasattr(ax, "__len__"):
@@ -147,10 +152,12 @@ def plotAngularThickness(slice_thickness, projection=False, uCT_flag=True):
             label="Ovarian end",
             linewidth=2,
         )
-        ax[i].set_title(r"{} horn thickness (from {} data)".format(
-            horn.capitalize(), data_type))
-
-        ax[i].tick_params(length=6, width=2, labelsize=12)
+        ax[i].set_title(
+            r"{} horn thickness (from {} data)".format(
+                horn.capitalize(),
+                data_type,
+            )
+        )
 
         if projection:
             ax[i].set_rlabel_position(-22.5)  # Move radial labels
@@ -162,8 +169,7 @@ def plotAngularThickness(slice_thickness, projection=False, uCT_flag=True):
             angle = np.deg2rad(25)
             plt.legend(
                 loc="lower left",
-                bbox_to_anchor=(0.5 + np.cos(angle) / 2, 0.5 + np.sin(
-                    angle) / 2),
+                bbox_to_anchor=(0.5 + np.cos(angle) / 2, 0.5 + np.sin(angle) / 2),
             )
 
             plt.xticks(
@@ -201,6 +207,8 @@ def plotAngularThickness(slice_thickness, projection=False, uCT_flag=True):
                 ],
             )
 
-            plt.ylabel("Muscle thickness (mm)", fontsize=12)
-            plt.xlabel(r"Angle $\theta$ (rad)", fontsize=12)
+            plt.ylabel("Muscle thickness (mm)")
+            plt.xlabel(r"Angle $\theta$ (rad)")
+
+    plt.subplots_adjust(left=LEFT, right=RIGHT, bottom=BOTTOM)
     plt.show()
