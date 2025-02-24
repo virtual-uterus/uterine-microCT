@@ -14,7 +14,7 @@ import scipy.io
 
 import thickness_analysis.plots as plots
 import thickness_analysis.projection as projection
-import utils.utils as utils
+import thickness_analysis.utils as utils
 
 if __name__ == "__main__":
     parser = argparse.ArgumentParser(
@@ -80,12 +80,18 @@ if __name__ == "__main__":
     # Parse input arguments
     args = parser.parse_args()
 
-    load_directory = os.path.join(utils.HOME, utils.BASE, args.dir_path, args.base_name)
+    load_directory = os.path.join(
+        utils.HOME,
+        utils.BASE,
+        args.dir_path,
+        args.base_name,
+    )
 
     if not args.not_d:
         # If the dataset is downsampled
         load_directory = os.path.join(load_directory, "downsampled")
-        param_file = os.path.join(load_directory, args.base_name + "_downsampled.toml")
+        param_file = os.path.join(
+            load_directory, args.base_name + "_downsampled.toml")
 
     else:
         # If not use top-level parameter file
@@ -168,7 +174,8 @@ if __name__ == "__main__":
                 last_slice = ind[-1]  # Get the last slice index of horn
                 centre_vectors = np.diff(centreline[:last_slice, 4:6], axis=0)
 
-        coordinates = np.ones((last_slice - split_nb - 1, 3))  # Account for diff
+        coordinates = np.ones(
+            (last_slice - split_nb - 1, 3))  # Account for diff
         # Add the centre vector coordinates
         coordinates[:, 0:2] = centre_vectors[split_nb:]
         length = np.sum(np.linalg.norm(coordinates, axis=1))
@@ -199,7 +206,8 @@ if __name__ == "__main__":
         )
         print(
             "{} horn radius: {:.2f} \u00b1 {:.2f} mm".format(
-                print_horn, np.mean(radius[split_nb:]), np.std(radius[split_nb:])
+                print_horn, np.mean(radius[split_nb:]), np.std(
+                    radius[split_nb:])
             )
         )
         print("{} horn length: {:.2f} mm".format(print_horn, length))

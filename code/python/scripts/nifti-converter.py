@@ -13,7 +13,7 @@ import sys
 
 import SimpleITK as sitk
 
-import utils.utils as utils
+import thickness_analysis.utils as utils
 
 if __name__ == "__main__":
     parser = argparse.ArgumentParser(
@@ -21,8 +21,7 @@ if __name__ == "__main__":
     )
 
     parser.add_argument(
-        "dir_path", type=str, metavar="dir-path",
-        help="path from BASE to the dataset"
+        "dir_path", type=str, metavar="dir-path", help="path from BASE to the dataset"
     )
     parser.add_argument(
         "base_name", type=str, metavar="base-name", help="name of the dataset"
@@ -49,8 +48,7 @@ if __name__ == "__main__":
     # Parse input arguments
     args = parser.parse_args()
 
-    load_directory = os.path.join(utils.HOME, utils.BASE, args.dir_path,
-                                  args.base_name)
+    load_directory = os.path.join(utils.HOME, utils.BASE, args.dir_path, args.base_name)
 
     if not args.not_d:
         # If the dataset is downsampled
@@ -64,8 +62,7 @@ if __name__ == "__main__":
 
     if not os.path.exists(load_directory):
         sys.stderr.write(
-            "\nError: the input folder {} does not exist\n".format(
-                load_directory)
+            "\nError: the input folder {} does not exist\n".format(load_directory)
         )
         exit()
 
@@ -74,8 +71,7 @@ if __name__ == "__main__":
 
     if len(img_list) == 0:
         sys.stderr.write(
-            "Error: the folder {} does not contain any images\n".format(
-                load_directory)
+            "Error: the folder {} does not contain any images\n".format(load_directory)
         )
         exit()
 

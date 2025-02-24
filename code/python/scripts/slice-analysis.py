@@ -14,7 +14,7 @@ import scipy.io
 
 import thickness_analysis.plots as plots
 import thickness_analysis.projection as projection
-import utils.utils as utils
+import thickness_analysis.utils as utils
 
 if __name__ == "__main__":
     parser = argparse.ArgumentParser(
@@ -22,8 +22,7 @@ if __name__ == "__main__":
     )
 
     parser.add_argument(
-        "dir_path", type=str, metavar="dir-path",
-        help="path from BASE to the dataset"
+        "dir_path", type=str, metavar="dir-path", help="path from BASE to the dataset"
     )
     parser.add_argument(
         "base_name", type=str, metavar="base-name", help="name of the dataset"
@@ -72,8 +71,7 @@ if __name__ == "__main__":
     # Parse input arguments
     args = parser.parse_args()
 
-    load_directory = os.path.join(utils.HOME, utils.BASE, args.dir_path,
-                                  args.base_name)
+    load_directory = os.path.join(utils.HOME, utils.BASE, args.dir_path, args.base_name)
 
     param_file = os.path.join(load_directory, args.base_name + ".toml")
     params = utils.parseTOML(param_file)
@@ -98,8 +96,7 @@ if __name__ == "__main__":
         print("Processing {} horn".format(horn))
         print("   Loading mask stack")
         mask_stack = utils.loadImageStack(
-            os.path.join(load_directory, "{}".format(horn)),
-            extension=args.extension
+            os.path.join(load_directory, "{}".format(horn)), extension=args.extension
         )
 
         circular_win_size = round(0.04 * args.points)
@@ -117,18 +114,16 @@ if __name__ == "__main__":
             centreline[0][0:4] = np.array([325, y_coord, 325, y_coord])
 
         print("   Estimating muscle thickness")
-        muscle_thickness, slice_thickness, _ = \
-            projection.estimateMuscleThickness(
-                mask_stack, centreline, args.points,
-                params[horn]["slice_nbs"], horn
-            )
+        muscle_thickness, slice_thickness, _ = projection.estimateMuscleThickness(
+            mask_stack, centreline, args.points, params[horn]["slice_nbs"], horn
+        )
 
         # Rescale the thickness to mm
         muscle_thickness *= params["scaling_factor"]
         slice_thickness *= params["scaling_factor"]
 
         print(
-            "{} horn muscle thickness: {:.2f} \u00B1 {:.2f}".format(
+            "{} horn muscle thickness: {:.2f} \u00b1 {:.2f}".format(
                 horn, np.mean(muscle_thickness), np.std(muscle_thickness)
             )
         )
@@ -140,18 +135,21 @@ if __name__ == "__main__":
 
         else:
             avg_slice_thickness[horn] = utils.circularAverage(
-                slice_thickness, circular_win_size).round(5)
+                slice_thickness, circular_win_size
+            ).round(5)
 
         # Plot everything
     if len(horns) == 2:
         for horn in horns:
             plots.plotAngularThickness(
-                {horn: avg_slice_thickness[horn]}, projection=args.polar,
-                uCT_flag=args.uCT_flag
+                {horn: avg_slice_thickness[horn]},
+                projection=args.polar,
+                uCT_flag=args.uCT_flag,
             )
     else:
-        plots.plotAngularThickness(avg_slice_thickness, projection=args.polar,
-                                   uCT_flag=args.uCT_flag)
+        plots.plotAngularThickness(
+            avg_slice_thickness, projection=args.polar, uCT_flag=args.uCT_flag
+        )
 
     # Save angular thickness
     with open(load_directory + "/angular_thickness.pkl", "wb") as f:

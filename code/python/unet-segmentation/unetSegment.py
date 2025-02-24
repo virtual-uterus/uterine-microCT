@@ -10,7 +10,7 @@ import glob
 import argparse
 
 import numpy as np
-import utils.utils as utils
+import thickness_analysis.utils as utils
 import skimage.io as skio
 
 from skimage.filters import threshold_otsu
@@ -22,16 +22,16 @@ if __name__ == "__main__":
     )
 
     parser.add_argument(
-        "dir_path", type=str, metavar="dir-path",
-        help="path from BASE to the dataset"
+        "dir_path",
+        type=str,
+        metavar="dir-path",
+        help="path from BASE to the dataset",
     )
     parser.add_argument(
         "base_name", type=str, metavar="base-name", help="name of the dataset"
     )
-    parser.add_argument(
-        "model", type=str, metavar="model",
-        help="saved model to use"
-    )
+    parser.add_argument("model", type=str, metavar="model",
+                        help="saved model to use")
     parser.add_argument(
         "--not-d",
         action="store_true",
@@ -52,8 +52,8 @@ if __name__ == "__main__":
     # Import tensorflow only after arguments to avoid loading on help
     import tensorflow as tf
 
-    main_directory = os.path.join(utils.HOME, utils.BASE, args.dir_path,
-                                  args.base_name)
+    main_directory = os.path.join(
+        utils.HOME, utils.BASE, args.dir_path, args.base_name)
 
     if not args.not_d:
         # If the dataset is downsampled
@@ -67,18 +67,16 @@ if __name__ == "__main__":
         os.mkdir(save_directory)
 
     imgs = utils.loadImageStack(load_directory)
-    img_names = sorted(glob.glob("*.{}".format(args.extension),
-                                 root_dir=load_directory))
+    img_names = sorted(
+        glob.glob("*.{}".format(args.extension), root_dir=load_directory)
+    )
 
     # Convert to floats between 0 and 1
     imgs = np.asarray(imgs, dtype=np.float32) / imgs.max()
 
     # Ensure shape are correct
     if len(imgs.shape) < 4:
-        imgs = imgs.reshape(imgs.shape[0],
-                            imgs.shape[1],
-                            imgs.shape[2],
-                            1)
+        imgs = imgs.reshape(imgs.shape[0], imgs.shape[1], imgs.shape[2], 1)
 
     # Load trained model
     model = tf.keras.models.load_model(args.model)
@@ -87,7 +85,7 @@ if __name__ == "__main__":
     # Reset max value to 255
     masks *= 255
     # Convert masks to uint8
-    masks = masks.astype('uint8')
+    masks = masks.astype("uint8")
 
     for i in range(masks.shape[0]):
         # Get mask
@@ -97,6 +95,11 @@ if __name__ == "__main__":
         threshold = threshold_otsu(mask)
         mask = mask > threshold
 
-        skio.imsave("{}/{}.{}".format(
-            save_directory, os.path.splitext(img_names[i])[0],
-            args.extension), img_as_ubyte(mask), check_contrast=False)
+        skio.imsave(
+            "{}/{}.{}".format(
+                save_directory, os.path.splitext(
+                    img_names[i])[0], args.extension
+            ),
+            img_as_ubyte(mask),
+            check_contrast=False,
+        )

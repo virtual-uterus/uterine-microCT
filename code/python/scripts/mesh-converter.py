@@ -11,7 +11,7 @@ import sys
 
 import meshio
 
-import utils.utils as utils
+import thickness_analysis.utils as utils
 
 if __name__ == "__main__":
     parser = argparse.ArgumentParser(

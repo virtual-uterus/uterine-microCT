@@ -12,7 +12,7 @@ import meshio
 import numpy as np
 import scipy.io
 
-import utils.utils as utils
+import thickness_analysis.utils as utils
 
 
 def getIndices(normal_vector, elements, plane_distance, centre_norm):

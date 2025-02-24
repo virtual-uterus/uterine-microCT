@@ -12,7 +12,7 @@ import os
 
 import numpy as np
 import skimage.io as skio
-import utils.utils as utils
+import thickness_analysis.utils as utils
 
 from skimage.util import img_as_ubyte
 
@@ -22,15 +22,13 @@ if __name__ == "__main__":
     )
 
     parser.add_argument(
-        "dir_path", type=str, metavar="dir-path",
-        help="path from BASE to the dataset"
+        "dir_path", type=str, metavar="dir-path", help="path from BASE to the dataset"
     )
     parser.add_argument(
         "base_name", type=str, metavar="base-name", help="name of the dataset"
     )
     parser.add_argument(
-        "new_size", type=int, metavar="new-size",
-        help="size of the new training image"
+        "new_size", type=int, metavar="new-size", help="size of the new training image"
     )
     parser.add_argument(
         "--not-d",
@@ -50,8 +48,7 @@ if __name__ == "__main__":
     args = parser.parse_args()
 
     new_size = args.new_size
-    load_directory = os.path.join(utils.HOME, utils.BASE, args.dir_path,
-                                  args.base_name)
+    load_directory = os.path.join(utils.HOME, utils.BASE, args.dir_path, args.base_name)
     if not args.not_d:
         # If the dataset is downsampled
         load_directory = os.path.join(load_directory, "downsampled")
@@ -61,8 +58,7 @@ if __name__ == "__main__":
     if not os.path.isdir(save_directory):
         os.mkdir(save_directory)
 
-    img_list = sorted(glob.glob("*.{}".format(args.extension),
-                                root_dir=load_directory))
+    img_list = sorted(glob.glob("*.{}".format(args.extension), root_dir=load_directory))
 
     for img_name in img_list:
         path = os.path.join(load_directory, img_name)
@@ -85,12 +81,18 @@ if __name__ == "__main__":
             for j in range((width + pad_w) // new_size):
                 # Get each image block
                 img_block = padded_img[
-                    i*new_size:(i+1)*new_size,
-                    j*new_size:(j+1)*new_size
+                    i * new_size : (i + 1) * new_size, j * new_size : (j + 1) * new_size
                 ]
 
                 # Save the image block
-                skio.imsave("{}/{}_block_{}_{}.{}".format(
-                    save_directory, os.path.splitext(img_name)[0],
-                    i, j, args.extension),
-                    img_as_ubyte(img_block), check_contrast=False)
+                skio.imsave(
+                    "{}/{}_block_{}_{}.{}".format(
+                        save_directory,
+                        os.path.splitext(img_name)[0],
+                        i,
+                        j,
+                        args.extension,
+                    ),
+                    img_as_ubyte(img_block),
+                    check_contrast=False,
+                )
