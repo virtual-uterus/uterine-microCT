@@ -3,28 +3,28 @@ data/
 figures/
 
 # Ignore python swp and cache
-code/p_scripts/*.swp
-code/p_scripts/__pycache__
-code/p_scripts/*.log
-code/thickness_analysis/*.swp
-code/thickness_analysis/__pycache__
-code/tests/*.swp
-code/tests/__pycache__
-code/utils/*.swp
-code/utils/__pycache__
+code/python/scripts/*.swp
+code/python/scripts/__pycache__
+code/python/scripts/*.log
+code/python/thickness_analysis/*.swp
+code/python/thickness_analysis/__pycache__
+code/python/tests/*.swp
+code/python/tests/__pycache__
+code/python/utils/*.swp
+code/python/utils/__pycache__
 
 # Ignore com swp files
 com/*.swp
 
 # Ignore asv files
-code/m_scripts/*.asv
-code/segmentation/*.asv
-code/utils/*.asv
-code/structure_tensor/*.asv
-code/thickness_analysis/*.asv
+code/MATLAB/m_scripts/*.asv
+code/MATLAB/segmentation/*.asv
+code/MATLAB/utils/*.asv
+code/MATLAB/structure_tensor/*.asv
+code/MATLAB/thickness_analysis/*.asv
 
 # Ignore backup files
 *.backup
         
 # Ignore unet model
-code/unet-segmentation/*.h5
+code/python/unet-segmentation/*.h5
