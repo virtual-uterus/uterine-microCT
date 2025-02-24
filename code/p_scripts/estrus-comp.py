@@ -15,10 +15,13 @@ import utils.utils as utils
 
 COLOURS = {"proestrus": "r", "estrus": "b", "metestrus": "g", "diestrus": "k"}
 Y_LABELS = {
-    "muscle_thickness": "Normalised muscle thickness (mm.mg$^{-1}$)",
-    "radius": "Normalised horn radius (mm.mg$^{-1}$)",
-    "length": "Normalised horn length (mm.mg$^{-1}$)",
+    "muscle_thickness": "Normalised muscle thickness (mm mg$^{-1}$)",
+    "radius": "Normalised horn radius (mm mg$^{-1}$)",
+    "length": "Normalised horn length (mm mg$^{-1}$)",
 }
+LEFT = 0.22
+BOTTOM = 0.17
+RIGHT = 0.80
 
 
 def plotData(data, metric):
@@ -57,6 +60,7 @@ def plotData(data, metric):
     plt.ylim(bottom=0)
 
     plt.ylabel(Y_LABELS[metric])
+    plt.subplots_adjust(left=LEFT, right=RIGHT, bottom=BOTTOM)
     plt.show()
 
 
