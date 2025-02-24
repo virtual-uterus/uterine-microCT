@@ -12,6 +12,7 @@ code/python/tests/*.swp
 code/python/tests/__pycache__
 code/python/utils/*.swp
 code/python/utils/__pycache__
+code/python/thickness.egg-info
 
 # Ignore com swp files
 com/*.swp
