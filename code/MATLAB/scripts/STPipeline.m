@@ -718,54 +718,6 @@ if streamlines
     J = J(MaskGD);
     K = K(MaskGD);
 
-%     %%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
-%     %
-%     % Eigenanalysis
-%     %
-%     %%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
-%     fprintf(' ... finding ethings ... \n');
-%     FA= zeros(length(d2Xs),1);
-%     Fibre = zeros(length(d2Xs),3);
-%     angle = zeros(length(d2Xs), 1);
-% 
-%     for i=1:length(d2Xs)
-%         if ~mod(i,100000) fprintf(' entry: %d\n',i); end
-%         % local structure tensor
-%         ST = [d2Xs(i),dXYs(i),dXZs(i);dXYs(i),d2Ys(i),dYZs(i);dXZs(i),dYZs(i),d2Zs(i)];
-%         [V,D] = eig(ST); % evect/eval in largest to smallest
-%         [~,idx]=sort(diag(D));
-%         L1 = D(idx(3),idx(3));
-%         L2 = D(idx(2),idx(2));
-%         L3 = D(idx(1),idx(1));
-%         Fibre(i,:) = V(:,idx(1))';
-%         angle(i) = ComputeFibreAngle(Fibre(i, :), centreline, I(i), K(i)); % Store the orientation angle
-% 
-%         Trace = (L1+L2+L3)/3;
-%         Denom = sqrt(L1.^2+L2.^2+L3.^3+1e-6);
-%         FA(i) = sqrt(3/2)*(sqrt((L1-Trace).^2+(L2-Trace).^2+(L3-Trace).^2))./Denom;
-%     end
-% 
-%     angle(angle > 90) = 180 - angle(angle > 90); % Make sure angles are between 0 and 90 deg
-%     %%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
-%     %
-%     % Write exdata file
-%     %
-%     %%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
-%     fprintf(' ... Writing exdata file ... \n');
-% 
-%     % output file name
-%     exfname = OutputPath + '/data_points_level_' + Level;
-% 
-%     DataSLabels = {'FA', 'Angles'};
-%     DataVLabels = {'Fibre'};
-%     DataS = zeros(length(I),2);
-%     DataS(:,1) = FA;
-%     DataS(:, 2) = angle;
-%     DataV = cell(1);
-%     DataV{1} = Fibre;
-%     GName = sprintf('DataPoints');
-%     WriteGeneralExdataFile(I,J,K,(1:length(I))',DataS,DataV,exfname,GName,DataSLabels,DataVLabels);
-
     %%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
     %
     % Manipulate loaded data
