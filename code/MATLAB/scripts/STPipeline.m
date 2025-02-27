@@ -177,7 +177,7 @@ if mask
 end
 
 % Clear everything except general parameters and input arguments
-clearvars -EXCEPT params base_dir src_dir extension file_template data_folder mask diffusion structure_tensor streamlines
+clearvars -EXCEPT params base_dir base_name src_dir extension file_template data_folder mask diffusion structure_tensor streamlines ortho
 
 
 if diffusion
@@ -322,7 +322,7 @@ if diffusion
 end
 
 % Clear everything except general parameters and input arguments
-clearvars -EXCEPT params base_dir src_dir extension file_template data_folder mask diffusion structure_tensor streamlines
+clearvars -EXCEPT params base_dir base_name src_dir extension file_template data_folder mask diffusion structure_tensor streamlines ortho
 
 if structure_tensor
     %%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
@@ -632,7 +632,7 @@ if structure_tensor
 end
 
 % Clear everything except general parameters and input arguments
-clearvars -EXCEPT params base_dir src_dir extension file_template data_folder mask diffusion structure_tensor streamlines
+clearvars -EXCEPT params base_dir base_name src_dir extension file_template data_folder mask diffusion structure_tensor streamlines ortho
 
 if streamlines
     %%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
@@ -794,7 +794,7 @@ if streamlines
 end
 
 % Clear everything except general parameters and input arguments
-clearvars -EXCEPT params base_dir src_dir extension file_template data_folder mask diffusion structure_tensor streamlines
+clearvars -EXCEPT params base_dir base_name src_dir extension file_template data_folder mask diffusion structure_tensor streamlines ortho
 
 if ortho
     %%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
@@ -909,8 +909,9 @@ if ortho
     sheets = zeros(nb_mesh_points, 3);
     normals = zeros(nb_mesh_points, 3);
 
+    disp("Computing fibres, sheets, and normals")
     for i=1:nb_mesh_points
-        cur_point = mesh_points(i);
+        cur_point = mesh_points(i, :);
         S = [Fd2Xs(cur_point(1),cur_point(2),cur_point(3)),...
              FdXYs(cur_point(1),cur_point(2),cur_point(3)),...
              FdXZs(cur_point(1),cur_point(2),cur_point(3));...
@@ -928,6 +929,7 @@ if ortho
     end
 
     % Write the ortho file
+    disp("Writing ortho file")
     WriteOrthoFile(DataPath + base_name + ".ortho", fibres, sheets, normals)
 end
 
