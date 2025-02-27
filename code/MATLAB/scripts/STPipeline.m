@@ -900,16 +900,24 @@ if ortho
     % Calculate fibre, sheet, and normals at mesh points
     %
     %%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
-    % Load points
-    mesh_points = readmatrix(DataPath + base_name + ".csv");
+    % Load element and point coordinates
+    mesh_elem = readmatrix(DataPath + base_name + "_elements.csv");
+    nb_mesh_elem = length(mesh_elem);
+
+    mesh_points = readmatrix(DataPath + base_name + "_points.csv");
     nb_mesh_points = length(mesh_points);
 
     % Allocate fibres, sheets, and normals
-    fibres = zeros(nb_mesh_points, 3);
-    sheets = zeros(nb_mesh_points, 3);
-    normals = zeros(nb_mesh_points, 3);
+    fibres_elem = zeros(nb_mesh_points, 3);
+    sheets_elem = zeros(nb_mesh_points, 3);
+    normals_elem = zeros(nb_mesh_points, 3);
 
-    disp("Computing fibres, sheets, and normals")
+    % Allocate fibres, sheets, and normals
+    fibres_points = zeros(nb_mesh_points, 3);
+    sheets_points = zeros(nb_mesh_points, 3);
+    normals_points = zeros(nb_mesh_points, 3);
+
+    disp("Computing fibres, sheets, and normals for elements")
     for i=1:nb_mesh_points
         cur_point = mesh_points(i, :);
         S = [Fd2Xs(cur_point(1),cur_point(2),cur_point(3)),...
@@ -923,14 +931,35 @@ if ortho
              Fd2Zs(cur_point(1),cur_point(2),cur_point(3))];
         [V,D] = eig(S); % evect/eval in largest to smallest
         [~,idx]=sort(diag(D));
-        normals(i, :) = V(:,idx(3))';
-        sheets(i, :) = V(:,idx(2))';
-        fibres(i, :) = V(:,idx(1))';
+        normals_elem(i, :) = V(:,idx(3))';
+        sheets_elem(i, :) = V(:,idx(2))';
+        fibres_elem(i, :) = V(:,idx(1))';
     end
 
-    % Write the ortho file
-    disp("Writing ortho file")
-    WriteOrthoFile(DataPath + base_name + ".ortho", fibres, sheets, normals)
-end
+    disp("Computing fibres, sheets, and normals for points")
+    for i=1:nb_mesh_points
+        cur_point = mesh_points(i, :);
+        S = [Fd2Xs(cur_point(1),cur_point(2),cur_point(3)),...
+             FdXYs(cur_point(1),cur_point(2),cur_point(3)),...
+             FdXZs(cur_point(1),cur_point(2),cur_point(3));...
+             FdXYs(cur_point(1),cur_point(2),cur_point(3)),...
+             Fd2Ys(cur_point(1),cur_point(2),cur_point(3)),...
+             FdYZs(cur_point(1),cur_point(2),cur_point(3));...
+             FdXZs(cur_point(1),cur_point(2),cur_point(3)),...
+             FdYZs(cur_point(1),cur_point(2),cur_point(3)),...
+             Fd2Zs(cur_point(1),cur_point(2),cur_point(3))];
+        [V,D] = eig(S); % evect/eval in largest to smallest
+        [~,idx]=sort(diag(D));
+        normals_points(i, :) = V(:,idx(3))';
+        sheets_points(i, :) = V(:,idx(2))';
+        fibres_points(i, :) = V(:,idx(1))';
+    end
 
+
+    % Write the ortho file
+    disp("Writing ortho files")
+    WriteOrthoFile(DataPath + base_name + "_elements.ortho", fibres_elem, sheets_elem, normals_elem)
+    WriteOrthoFile(DataPath + base_name + "_points.ortho", fibres_points, sheets_points, normals_points)
 end
+end
+nd
