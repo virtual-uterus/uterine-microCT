@@ -18,12 +18,12 @@ if ~all(size(fibres) == size(normals))
 end
 
 fid = fopen(file_name,'w');
-fprintf(fid,'%d', length(fibres));  % Print number of elements
+fprintf(fid,'%d\n', length(fibres));  % Print number of elements
 
 for i = 1:length(fibres)
     fprintf(fid, '%f %f %f', fibres(i, 1), fibres(i, 2), fibres(i, 3));
-    fprintf(fid, ' %f %f %f', sheets(i, 1), sheets(i, 2), sheets(i, 3));
-    fprintf(fid, ' %f %f %f', normals(i, 1), normals(i, 2), normals(i, 3));
+    fprintf(fid, ' %f %f %f ', sheets(i, 1), sheets(i, 2), sheets(i, 3));
+    fprintf(fid, '%f %f %f\n', normals(i, 1), normals(i, 2), normals(i, 3));
 end
 
 fclose(fid);
