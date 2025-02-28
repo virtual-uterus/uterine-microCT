@@ -38,3 +38,5 @@ weight=272 # in grams
 	DI=3
 	DK=3
 
+[ST.ortho]
+  level=2

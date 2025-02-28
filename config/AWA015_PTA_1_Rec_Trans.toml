@@ -34,3 +34,5 @@ ylim = [700, 3152]
 	DI=6
 	DK=6
 
+[ST.ortho]
+  level=2

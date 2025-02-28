@@ -83,3 +83,6 @@ weight=256 # in grams
 	DJ=3
 	DI=3
 	DK=3
+
+[ST.ortho]
+  level=2
