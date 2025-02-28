@@ -918,8 +918,8 @@ if ortho
     normals_points = zeros(nb_mesh_points, 3);
 
     disp("Computing fibres, sheets, and normals for elements")
-    for i=1:nb_mesh_points
-        cur_point = mesh_points(i, :);
+    for i=1:nb_mesh_elem
+        cur_point = mesh_elem(i, :);
         S = [Fd2Xs(cur_point(1),cur_point(2),cur_point(3)),...
              FdXYs(cur_point(1),cur_point(2),cur_point(3)),...
              FdXZs(cur_point(1),cur_point(2),cur_point(3));...
