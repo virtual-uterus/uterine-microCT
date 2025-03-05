@@ -811,10 +811,6 @@ if ortho
     %
     %%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
     Level = params.ST.streamlines.level; % frequency resolution of ST/Hessian data to use
-    % Index step size
-    DJ = double(params.ST.streamlines.DJ);
-    DI = double(params.ST.streamlines.DI);
-    DK = double(params.ST.streamlines.DK);
     %%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
     %
     % Data and path locations
@@ -882,11 +878,6 @@ if ortho
     % Manipulate loaded data
     %
     %%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
-
-    % Index step sizes
-    % Manually set earlier
-    fprintf('DI: %d, DJ: %d, DK: %d\n',DI,DJ,DK);
-
     % Set up interpolant
     Fd2Xs = scatteredInterpolant(I,J,K,d2Xs);
     FdXYs = scatteredInterpolant(I,J,K,dXYs);
@@ -962,4 +953,3 @@ if ortho
     WriteOrthoFile(DataPath + base_name + "_points.ortho", fibres_points, sheets_points, normals_points)
 end
 end
-nd
