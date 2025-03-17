@@ -14,13 +14,17 @@ function angle = ComputeFibreAngle(fibre, centrepoints, cur_X, cur_Z, ...
 %
 %   Return:
 %    - angle, angle between the fibre and the current plane in degrees.
-if isempty(centrepoints)
+if isempty(centrepoints) || cur_Z > length(centrepoints) - 1
     z_vector = [0; 0; 1];
 
 else
     cur_Z = round(cur_Z);
     cur_X = round(cur_X);
-    
+
+    if cur_Z == 0
+       cur_Z = 1;
+    end
+
     if all(centrepoints(3:4, cur_Z))
         % If a middle point is found
         % Define the z vector as the centre vector between current slice
