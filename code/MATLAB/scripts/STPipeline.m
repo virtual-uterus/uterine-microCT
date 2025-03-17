@@ -852,6 +852,16 @@ if ortho
     I3D = loadImageStack(mask_paths);
     [Nj, Ni, Nk] = size(I3D);
 
+    try
+        % Try to read the centreline file if it exists
+        centreline = load(MaskPath +  "/centreline.mat");
+        centreline = centreline.centreline;
+    catch
+        centreline = [];
+    end
+
+    nb_used_slices = double(params.nb_used_slices);
+
     %%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
     %
     % Manipulate loaded data
@@ -907,6 +917,7 @@ if ortho
     fibres_points = zeros(nb_mesh_points, 3);
     sheets_points = zeros(nb_mesh_points, 3);
     normals_points = zeros(nb_mesh_points, 3);
+    angles_points = zeros(nb_mesh_points, 3);
 
     disp("Computing fibres, sheets, and normals for elements")
     for i=1:nb_mesh_elem
@@ -944,12 +955,13 @@ if ortho
         normals_points(i, :) = V(:,idx(3))';
         sheets_points(i, :) = V(:,idx(2))';
         fibres_points(i, :) = V(:,idx(1))';
+        angles_points(k, :) = ComputeFibreAngle(V(:, idx(1))', centreline, cur_point(1), cur_point(3), nb_used_slices);
     end
 
 
     % Write the ortho file
     disp("Writing ortho files")
     WriteOrthoFile(DataPath + base_name + "_elements.ortho", fibres_elem, sheets_elem, normals_elem)
-    WriteOrthoFile(DataPath + base_name + "_points.ortho", fibres_points, sheets_points, normals_points)
+    WriteOrthoFile(DataPath + base_name + "_points.ortho", fibres_points, sheets_points, normals_points, angles_points)
 end
 end
