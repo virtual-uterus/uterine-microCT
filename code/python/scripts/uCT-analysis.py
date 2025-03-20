@@ -1,9 +1,12 @@
 #!/usr/bin/env python3
 # -*- coding: utf-8 -*-
-#
-# uCT-analysis.py: Script to analyse muscle thickness in uterine horns
-# Author: Mathias Roesler
-# Last modified: 06/23
+"""
+uCT-analysis.py
+
+Script to analyse muscle thickness in uterine horns
+Author: Mathias Roesler
+Date: 06/23
+"""
 
 import argparse
 import os

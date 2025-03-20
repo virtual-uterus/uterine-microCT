@@ -1,9 +1,12 @@
 #!/usr/bin/env python3
 # -*- coding: utf-8 -*-
-#
-# correlation.py: Script to estimate correlation between histology and uCT
-# Author: Mathias Roesler
-# Last modified: 06/23
+"""
+correlation.py
+
+Script to estimate correlation between histology and uCT
+Author: Mathias Roesler
+Date: 06/23
+"""
 
 import argparse
 import os
@@ -52,8 +55,7 @@ if __name__ == "__main__":
     args = parser.parse_args()
 
     # Set up variables
-    uCT_directory = os.path.join(
-        utils.HOME, utils.BASE, args.uCT_path, args.base_name)
+    uCT_directory = os.path.join(utils.HOME, utils.BASE, args.uCT_path, args.base_name)
     histo_directory = os.path.join(
         utils.HOME, utils.BASE, args.histo_path, args.base_name + "_histology"
     )
@@ -88,8 +90,7 @@ if __name__ == "__main__":
         assert uCT_data.shape == histo_data.shape
 
     except AssertionError:
-        sys.stderr.write(
-            "Error: uCT and histology data show have same shape.\n")
+        sys.stderr.write("Error: uCT and histology data show have same shape.\n")
 
     nb_samples = len(uCT_data)
 

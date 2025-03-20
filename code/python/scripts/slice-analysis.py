@@ -1,9 +1,12 @@
 #!/usr/bin/env python3
 # -*- coding: utf-8 -*-
-#
-# slice-analysis.py: Script to generate the thickness based on slices
-# Author: Mathias Roesler
-# Last modified: 04/24
+"""
+slice-analysis.py
+
+Script to generate the thickness based on slices
+Author: Mathias Roesler
+Date: 04/24
+"""
 
 import argparse
 import os
@@ -74,8 +77,7 @@ if __name__ == "__main__":
     # Parse input arguments
     args = parser.parse_args()
 
-    load_directory = os.path.join(
-        utils.HOME, utils.BASE, args.dir_path, args.base_name)
+    load_directory = os.path.join(utils.HOME, utils.BASE, args.dir_path, args.base_name)
 
     param_file = os.path.join(load_directory, args.base_name + ".toml")
     params = utils.parseTOML(param_file)

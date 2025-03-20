@@ -1,9 +1,12 @@
 #!/usr/bin/env python3
 # -*- coding: utf-8 -*-
-#
-# utils.py: Utility functions for the quantative analysis
-# Author: Mathias Roesler
-# Last modified: 02/23
+"""
+utils.py
+
+Utility functions for the thickness package
+Author: Mathias Roesler
+Date: 02/23
+"""
 
 import os
 import sys
@@ -310,10 +313,9 @@ def writeExElemVol(file_path, elements, thickness=True):
             # If no thickness is provided there is only one field
             f.write("#Fields=1\n")
 
-        f.write("1) coordinates, coordinate, rectangular cartesian, " "#Components=3\n")
+        f.write("1) coordinates, coordinate, rectangular cartesian, #Components=3\n")
         f.write(
-            " x. l.simplex(2;3)*l.simplex*l.simplex, no modify, "
-            "standard node based.\n"
+            " x. l.simplex(2;3)*l.simplex*l.simplex, no modify, standard node based.\n"
         )
         f.write("  #Nodes=4\n")
         f.write("  1. #Values=1\n")
@@ -329,8 +331,7 @@ def writeExElemVol(file_path, elements, thickness=True):
         f.write("	Value indices: 1\n")
         f.write("	Scale factor indices: 0\n")
         f.write(
-            " y. l.simplex(2;3)*l.simplex*l.simplex, no modify, "
-            "standard node based.\n"
+            " y. l.simplex(2;3)*l.simplex*l.simplex, no modify, standard node based.\n"
         )
         f.write("  #Nodes=4\n")
         f.write("  1. #Values=1\n")
@@ -346,8 +347,7 @@ def writeExElemVol(file_path, elements, thickness=True):
         f.write("	Value indices: 1\n")
         f.write("	Scale factor indices: 0\n")
         f.write(
-            " z. l.simplex(2;3)*l.simplex*l.simplex, no modify, "
-            "standard node based.\n"
+            " z. l.simplex(2;3)*l.simplex*l.simplex, no modify, standard node based.\n"
         )
         f.write("  #Nodes=4\n")
         f.write("  1. #Values=1\n")
@@ -364,7 +364,7 @@ def writeExElemVol(file_path, elements, thickness=True):
         f.write("	Scale factor indices: 0\n")
 
         if thickness:
-            f.write("2) thickness, field, rectangular cartesian, " "#Components=1\n")
+            f.write("2) thickness, field, rectangular cartesian, #Components=1\n")
             f.write(" thickness. constant, no modify, standard node based.\n")
             f.write("  #Nodes=1\n")
             f.write("  1. #Values=1\n")
@@ -415,7 +415,7 @@ def writeExElemSurf(file_path, elements, thickness=True):
             # If no thickness is provided there is only one field
             f.write("#Fields=1\n")
 
-        f.write("1) coordinates, coordinate, rectangular cartesian, " "#Components=3\n")
+        f.write("1) coordinates, coordinate, rectangular cartesian, #Components=3\n")
         f.write(" x. l.simplex(2)*l.simplex, no modify, standard node based.\n")
         f.write("  #Nodes=3\n")
         f.write("  1. #Values=1\n")
@@ -494,8 +494,7 @@ def writeExNode(file_path, nodes, thickness=None):
 
         except AssertionError:
             sys.stderr.write(
-                "Error: nodes and thickness should have the same "
-                "number of elements\n"
+                "Error: nodes and thickness should have the same number of elements\n"
             )
             exit()
 
@@ -511,7 +510,7 @@ def writeExNode(file_path, nodes, thickness=None):
             # If no thickness is provided there is only one field
             f.write("#Fields=1\n")
 
-        f.write("1) coordinates, coordinate, rectangular cartesian, " "#Components=3\n")
+        f.write("1) coordinates, coordinate, rectangular cartesian, #Components=3\n")
         f.write(" x. Value index=1, #Derivatives=0\n")
         f.write(" y. Value index=2, #Derivatives=0\n")
         f.write(" z. Value index=3, #Derivatives=0\n")

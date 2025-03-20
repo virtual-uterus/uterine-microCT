@@ -1,10 +1,13 @@
 #!/usr/bin/env python3
 # -*- coding: utf-8 -*-
-#
-# Programs that converts a stack of images into a
-# nifti volume. Requires SimpleITK package.
-# Author: Mathias Roesler
-# Last modified: 06/23
+"""
+nifti-converter.py
+
+Programs that converts a stack of images into a
+nifti volume. Requires SimpleITK package.
+Author: Mathias Roesler
+Date: 06/23
+"""
 
 import argparse
 import glob

@@ -1,9 +1,12 @@
 #!/usr/bin/env python3
 # -*- coding: utf-8 -*-
-#
-# projection_fig_gen.py: Script to generate the projection point figure
-# Author: Mathias Roesler
-# Last modified: 06/23
+"""
+projection_fig_gen.py
+
+Script to generate the projection point figure
+Author: Mathias Roesler
+Date: 06/23
+"""
 
 import argparse
 import os
@@ -66,13 +69,19 @@ if __name__ == "__main__":
     args = parser.parse_args()
 
     load_directory = os.path.join(
-        utils.HOME, utils.BASE, args.dir_path, args.base_name)
+        utils.HOME,
+        utils.BASE,
+        args.dir_path,
+        args.base_name,
+    )
 
     if not args.not_d:
         # If the dataset is downsampled
         load_directory = os.path.join(load_directory, "downsampled")
         param_file = os.path.join(
-            load_directory, args.base_name + "_downsampled.toml")
+            load_directory,
+            args.base_name + "_downsampled.toml",
+        )
 
     else:
         # If not use top-level parameter file
@@ -83,8 +92,8 @@ if __name__ == "__main__":
 
     # Get the original image
     original_img_name = os.path.join(
-        load_directory, params["prefix"] + "_" +
-        args.img_nb + "." + args.extension
+        load_directory,
+        params["prefix"] + "_" + args.img_nb + "." + args.extension,
     )
 
     # Add the muscle segmentation to the load directory
@@ -92,8 +101,8 @@ if __name__ == "__main__":
 
     # Get the original mask
     original_mask_name = os.path.join(
-        load_directory, params["prefix"] + "_" +
-        args.img_nb + "." + args.extension
+        load_directory,
+        params["prefix"] + "_" + args.img_nb + "." + args.extension,
     )
 
     load_directory = os.path.join(load_directory, args.horn)
@@ -105,8 +114,8 @@ if __name__ == "__main__":
 
     # Image to use for projection
     rotated_mask_name = os.path.join(
-        load_directory, params["prefix"] + "_" +
-        args.img_nb + "." + args.extension
+        load_directory,
+        params["prefix"] + "_" + args.img_nb + "." + args.extension,
     )
 
     # Load all the images

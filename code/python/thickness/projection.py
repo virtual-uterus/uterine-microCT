@@ -1,9 +1,12 @@
 #!/usr/bin/env python3
 # -*- coding: utf-8 -*-
-#
-# projection.py: Functions used to find the projections points
-# Author: Mathias Roesler
-# Last modified: 04/24
+"""
+projection.py
+
+Functions used to find the projections points
+Author: Mathias Roesler
+Date: 04/24
+"""
 
 import logging
 import sys
@@ -450,7 +453,7 @@ def estimateMuscleThickness(img_stack, centreline, nb_points, slice_nbs, horn):
 
     except AssertionError:
         sys.stderr.write(
-            "Error: the image stack and the centreline do not  have the same size.\n"
+            "Error: the image stack and the centreline do not  have the same size.\n",
         )
         exit()
 
