@@ -9,60 +9,9 @@ import argparse
 import os
 
 import numpy as np
-import matplotlib.pyplot as plt
 
 import thickness.utils as utils
-
-COLOURS = {"proestrus": "r", "estrus": "b", "metestrus": "g", "diestrus": "k"}
-Y_LABELS = {
-    "muscle_thickness": "Normalised muscle thickness (mm mg$^{-1}$)",
-    "radius": "Normalised horn radius (mm mg$^{-1}$)",
-    "length": "Normalised horn length (mm mg$^{-1}$)",
-}
-LEFT = 0.22
-BOTTOM = 0.17
-RIGHT = 0.80
-
-
-def plotData(data, metric):
-    """Plots the selected data.
-
-    Arguments:
-    data -- dict(list(float))), dictionnary with estrus phases as keys and
-    lists of metric values as values
-
-    Return:
-
-    """
-    fig, ax = plt.subplots(dpi=300)
-
-    for i, stage in enumerate(data.keys()):
-        nb_samples = len(data[stage])
-        np.random.seed(12)  # Reset random seed for all stages to be identical
-        jitter = np.random.uniform(-0.1, 0.1, nb_samples)
-
-        plt.errorbar(
-            (i + 1) * np.ones(nb_samples) + jitter,
-            data[stage][:, 0],
-            data[stage][:, 1],
-            c=COLOURS[stage],
-            marker=".",
-            linestyle="",
-            capsize=3.0,
-        )
-
-    # Reset x-axis ticks
-    plt.xticks(
-        ticks=[1, 2, 3, 4],
-        labels=[estrus.capitalize() for estrus in data.keys()],
-    )
-    plt.xlim([0.5, 4.5])
-    plt.ylim(bottom=0)
-
-    plt.ylabel(Y_LABELS[metric])
-    plt.subplots_adjust(left=LEFT, right=RIGHT, bottom=BOTTOM)
-    plt.show()
-
+from thickness.plots import plotData
 
 if __name__ == "__main__":
     parser = argparse.ArgumentParser(
