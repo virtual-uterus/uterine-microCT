@@ -16,7 +16,7 @@ import sys
 
 import SimpleITK as sitk
 
-import thickness.utils as utils
+from thickness.constants import BASE, HOME
 
 if __name__ == "__main__":
     parser = argparse.ArgumentParser(
@@ -55,8 +55,8 @@ if __name__ == "__main__":
     args = parser.parse_args()
 
     load_directory = os.path.join(
-        utils.HOME,
-        utils.BASE,
+        HOME,
+        BASE,
         args.dir_path,
         args.base_name,
     )

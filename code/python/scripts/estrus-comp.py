@@ -12,9 +12,10 @@ import argparse
 import os
 
 import numpy as np
-
 import thickness.utils as utils
+
 from thickness.plots import plotData
+from thickness.constants import BASE, HOME
 
 if __name__ == "__main__":
     parser = argparse.ArgumentParser(
@@ -47,7 +48,7 @@ if __name__ == "__main__":
     # Parse input arguments
     args = parser.parse_args()
 
-    load_directory = os.path.join(utils.HOME, utils.BASE, args.dir_path)
+    load_directory = os.path.join(HOME, BASE, args.dir_path)
     param_file = os.path.join(load_directory, args.estrus_config + ".toml")
 
     # Load parameters

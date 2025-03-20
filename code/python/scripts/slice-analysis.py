@@ -16,8 +16,10 @@ import numpy as np
 import scipy.io
 
 import thickness.plots as plots
-import thickness.projection as projection
 import thickness.utils as utils
+import thickness.projection as projection
+
+from thickness.constants import BASE, HOME
 
 if __name__ == "__main__":
     parser = argparse.ArgumentParser(
@@ -77,7 +79,7 @@ if __name__ == "__main__":
     # Parse input arguments
     args = parser.parse_args()
 
-    load_directory = os.path.join(utils.HOME, utils.BASE, args.dir_path, args.base_name)
+    load_directory = os.path.join(HOME, BASE, args.dir_path, args.base_name)
 
     param_file = os.path.join(load_directory, args.base_name + ".toml")
     params = utils.parseTOML(param_file)

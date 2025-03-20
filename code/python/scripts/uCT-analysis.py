@@ -19,6 +19,8 @@ import thickness.plots as plots
 import thickness.projection as projection
 import thickness.utils as utils
 
+from thickness.constants import BASE, HOME
+
 if __name__ == "__main__":
     parser = argparse.ArgumentParser(
         description="Determines the thickness of the myometrium from uCT data"
@@ -84,8 +86,8 @@ if __name__ == "__main__":
     args = parser.parse_args()
 
     load_directory = os.path.join(
-        utils.HOME,
-        utils.BASE,
+        HOME,
+        BASE,
         args.dir_path,
         args.base_name,
     )

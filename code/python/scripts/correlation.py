@@ -15,7 +15,7 @@ import sys
 import numpy as np
 from scipy import stats
 
-import thickness.utils as utils
+from thickness.constants import BASE, HOME
 
 if __name__ == "__main__":
     parser = argparse.ArgumentParser(
@@ -55,9 +55,9 @@ if __name__ == "__main__":
     args = parser.parse_args()
 
     # Set up variables
-    uCT_directory = os.path.join(utils.HOME, utils.BASE, args.uCT_path, args.base_name)
+    uCT_directory = os.path.join(HOME, BASE, args.uCT_path, args.base_name)
     histo_directory = os.path.join(
-        utils.HOME, utils.BASE, args.histo_path, args.base_name + "_histology"
+        HOME, BASE, args.histo_path, args.base_name + "_histology"
     )
     regions = ["cervix", "cervical", "central", "ovarian"]
     horn = args.horn
@@ -90,7 +90,8 @@ if __name__ == "__main__":
         assert uCT_data.shape == histo_data.shape
 
     except AssertionError:
-        sys.stderr.write("Error: uCT and histology data show have same shape.\n")
+        sys.stderr.write(
+            "Error: uCT and histology data show have same shape.\n")
 
     nb_samples = len(uCT_data)
 
