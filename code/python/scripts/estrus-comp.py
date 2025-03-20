@@ -1,9 +1,12 @@
 #!/usr/bin/env python3
 # -*- coding: utf-8 -*-
-#
-# estrus-comp.py: Script to compare the results at different estrus stages
-# Author: Mathias Roesler
-# Last modified: 11/24
+"""
+estrus-comp.py
+
+Script to compare the results at different estrus stages
+Author: Mathias Roesler
+Date: 03/25
+"""
 
 import argparse
 import os
