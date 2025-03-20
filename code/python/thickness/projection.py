@@ -8,8 +8,8 @@ Author: Mathias Roesler
 Date: 04/24
 """
 
-import logging
 import sys
+import logging
 
 import numpy as np
 import skimage.draw as skd
