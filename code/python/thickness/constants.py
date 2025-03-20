@@ -8,6 +8,10 @@ Author: Mathias Roesler
 Date: 03/25
 """
 
+import os
+
+HOME = os.path.expanduser("~")
+BASE = "Documents/phd"
 COLOURS = {"proestrus": "r", "estrus": "b", "metestrus": "g", "diestrus": "k"}
 Y_LABELS = {
     "muscle_thickness": "Normalised muscle thickness (mm mg$^{-1}$)",

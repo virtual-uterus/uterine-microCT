@@ -15,9 +15,6 @@ import tomli
 import numpy as np
 import skimage.io as skio
 
-HOME = os.path.expanduser("~")
-BASE = "Documents/phd"
-
 
 def loadImageStack(dir_path, extension="png"):
     """Loads the images found in the directory
