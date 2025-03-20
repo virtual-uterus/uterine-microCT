@@ -12,13 +12,13 @@ import pickle
 import numpy as np
 import scipy.io
 
-import thickness_analysis.plots as plots
-import thickness_analysis.projection as projection
-import thickness_analysis.utils as utils
+import thickness.plots as plots
+import thickness.projection as projection
+import thickness.utils as utils
 
 if __name__ == "__main__":
     parser = argparse.ArgumentParser(
-        description="Determines the thickness of the muscle layers from a uCT dataset"
+        description="Determines the thickness of the myometrium from uCT data"
     )
 
     parser.add_argument(
@@ -91,7 +91,9 @@ if __name__ == "__main__":
         # If the dataset is downsampled
         load_directory = os.path.join(load_directory, "downsampled")
         param_file = os.path.join(
-            load_directory, args.base_name + "_downsampled.toml")
+            load_directory,
+            args.base_name + "_downsampled.toml",
+        )
 
     else:
         # If not use top-level parameter file
@@ -175,7 +177,8 @@ if __name__ == "__main__":
                 centre_vectors = np.diff(centreline[:last_slice, 4:6], axis=0)
 
         coordinates = np.ones(
-            (last_slice - split_nb - 1, 3))  # Account for diff
+            (last_slice - split_nb - 1, 3),
+        )  # Account for diff
         # Add the centre vector coordinates
         coordinates[:, 0:2] = centre_vectors[split_nb:]
         length = np.sum(np.linalg.norm(coordinates, axis=1))
@@ -206,8 +209,9 @@ if __name__ == "__main__":
         )
         print(
             "{} horn radius: {:.2f} \u00b1 {:.2f} mm".format(
-                print_horn, np.mean(radius[split_nb:]), np.std(
-                    radius[split_nb:])
+                print_horn,
+                np.mean(radius[split_nb:]),
+                np.std(radius[split_nb:]),
             )
         )
         print("{} horn length: {:.2f} mm".format(print_horn, length))

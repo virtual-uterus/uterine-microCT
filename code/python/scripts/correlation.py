@@ -12,7 +12,7 @@ import sys
 import numpy as np
 from scipy import stats
 
-import thickness_analysis.utils as utils
+import thickness.utils as utils
 
 if __name__ == "__main__":
     parser = argparse.ArgumentParser(
@@ -21,7 +21,10 @@ if __name__ == "__main__":
     )
 
     parser.add_argument(
-        "uCT_path", type=str, metavar="uCT-path", help="path from BASE to the uCT data"
+        "uCT_path",
+        type=str,
+        metavar="uCT-path",
+        help="path from BASE to the uCT data",
     )
     parser.add_argument(
         "histo_path",
@@ -66,12 +69,14 @@ if __name__ == "__main__":
     histo_directory = os.path.join(histo_directory, "muscle_segmentation")
 
     # Read data
-    uCT_data = np.load(uCT_directory + "/angular_thickness.pkl", allow_pickle=True)[
-        horn
-    ]
-    histo_data = np.load(histo_directory + "/angular_thickness.pkl", allow_pickle=True)[
-        horn
-    ]
+    uCT_data = np.load(
+        uCT_directory + "/angular_thickness.pkl",
+        allow_pickle=True,
+    )[horn]
+    histo_data = np.load(
+        histo_directory + "/angular_thickness.pkl",
+        allow_pickle=True,
+    )[horn]
 
     # Set nan values to 0
     uCT_nan_ind = np.where(np.isnan(uCT_data))

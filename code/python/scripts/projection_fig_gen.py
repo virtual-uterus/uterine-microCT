@@ -12,9 +12,9 @@ import matplotlib.pyplot as plt
 import numpy as np
 import scipy.io
 
-import thickness_analysis.plots as plots
-import thickness_analysis.projection as projection
-import thickness_analysis.utils as utils
+import thickness.plots as plots
+import thickness.projection as projection
+import thickness.utils as utils
 
 if __name__ == "__main__":
     parser = argparse.ArgumentParser(
@@ -22,7 +22,10 @@ if __name__ == "__main__":
     )
 
     parser.add_argument(
-        "dir_path", type=str, metavar="dir-path", help="path from BASE to the dataset"
+        "dir_path",
+        type=str,
+        metavar="dir-path",
+        help="path from BASE to the dataset",
     )
     parser.add_argument(
         "base_name", type=str, metavar="base-name", help="name of the dataset"
@@ -62,12 +65,14 @@ if __name__ == "__main__":
     # Parse input arguments
     args = parser.parse_args()
 
-    load_directory = os.path.join(utils.HOME, utils.BASE, args.dir_path, args.base_name)
+    load_directory = os.path.join(
+        utils.HOME, utils.BASE, args.dir_path, args.base_name)
 
     if not args.not_d:
         # If the dataset is downsampled
         load_directory = os.path.join(load_directory, "downsampled")
-        param_file = os.path.join(load_directory, args.base_name + "_downsampled.toml")
+        param_file = os.path.join(
+            load_directory, args.base_name + "_downsampled.toml")
 
     else:
         # If not use top-level parameter file
@@ -78,7 +83,8 @@ if __name__ == "__main__":
 
     # Get the original image
     original_img_name = os.path.join(
-        load_directory, params["prefix"] + "_" + args.img_nb + "." + args.extension
+        load_directory, params["prefix"] + "_" +
+        args.img_nb + "." + args.extension
     )
 
     # Add the muscle segmentation to the load directory
@@ -86,7 +92,8 @@ if __name__ == "__main__":
 
     # Get the original mask
     original_mask_name = os.path.join(
-        load_directory, params["prefix"] + "_" + args.img_nb + "." + args.extension
+        load_directory, params["prefix"] + "_" +
+        args.img_nb + "." + args.extension
     )
 
     load_directory = os.path.join(load_directory, args.horn)
@@ -98,7 +105,8 @@ if __name__ == "__main__":
 
     # Image to use for projection
     rotated_mask_name = os.path.join(
-        load_directory, params["prefix"] + "_" + args.img_nb + "." + args.extension
+        load_directory, params["prefix"] + "_" +
+        args.img_nb + "." + args.extension
     )
 
     # Load all the images
