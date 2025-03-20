@@ -13,7 +13,7 @@ import logging
 
 import numpy as np
 import skimage.draw as skd
-import thickness_analysis.utils as utils
+import thickness.utils as utils
 
 
 def find_line_coordinates(img_shape, centre_point, theta):
@@ -255,7 +255,7 @@ def find_projection_points(img, centre_points, nb_points, horn):
             # Clear half of the image based on the horn
             match horn:
                 case "left":
-                    img[i, line_x[i] :] = 0
+                    img[i, line_x[i]:] = 0
 
                 case "right":
                     img[i, : line_x[i] + 1] = 0
@@ -289,7 +289,7 @@ def find_projection_points(img, centre_points, nb_points, horn):
             theta,
         )
 
-        projection_points[(i * 4) : (i + 1) * 4] = points
+        projection_points[(i * 4): (i + 1) * 4] = points
 
     if (centre_points[2:4] != np.array([0, 0])).all():
         projection_points = exclude_central_points(
