@@ -11,9 +11,7 @@ Date: 03/25
 import matplotlib.pyplot as plt
 import numpy as np
 
-LEFT = 0.22
-BOTTOM = 0.17
-RIGHT = 0.80
+from thickness.constants import LEFT, BOTTOM, RIGHT, COLOURS, Y_LABELS
 
 
 def plotProjectionPoints(img, centre, projection_points):
