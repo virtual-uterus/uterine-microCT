@@ -70,7 +70,7 @@ if __name__ == "__main__":
 
     if not os.path.exists(load_directory):
         sys.stderr.write(
-            "\nError: the input folder {} does not exist\n".format(load_directory)
+            f"Error: the input folder {load_directory} does not exist\n",
         )
         exit()
 
