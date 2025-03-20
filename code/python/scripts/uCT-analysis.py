@@ -105,7 +105,7 @@ if __name__ == "__main__":
         param_file = os.path.join(load_directory, args.base_name + ".toml")
 
     # Load parameters
-    params = utils.parseTOML(param_file)
+    params = utils.parse_TOML(param_file)
     split_nb = params["split_nb"]  # Get horn separation slice
     weight = params["weight"] * 1e-3  # Weight in mg for normalisation
     params = params["thickness"]  # Extract the thickness parameters
@@ -137,7 +137,7 @@ if __name__ == "__main__":
 
         print("Processing {} horn".format(print_horn))
         print("   Loading mask stack")
-        mask_stack = utils.loadImageStack(
+        mask_stack = utils.load_image_stack(
             os.path.join(load_directory, "{}".format(horn)),
             extension=args.extension,
         )
@@ -158,12 +158,14 @@ if __name__ == "__main__":
         nb_slices = len(centreline) - 1  # Number of slices in the horn
 
         print("   Estimating muscle thickness")
-        muscle_thickness, slice_thickness, radius = projection.estimateMuscleThickness(
-            mask_stack,
-            centreline,
-            args.points,
-            params[horn]["slice_nbs"],
-            horn,
+        muscle_thickness, slice_thickness, radius = (
+            projection.estimate_muscle_thickness(
+                mask_stack,
+                centreline,
+                args.points,
+                params[horn]["slice_nbs"],
+                horn,
+            )
         )
 
         # Estimate horn length
@@ -195,13 +197,13 @@ if __name__ == "__main__":
         length *= params["scaling_factor"]
 
         # Populate dictionnaries for pickling data
-        avg_thickness[print_horn] = utils.movingAverage(
+        avg_thickness[print_horn] = utils.moving_average(
             muscle_thickness, muscle_win_size
         ).round(5)
-        avg_slice_thickness[print_horn] = utils.circularAverage(
+        avg_slice_thickness[print_horn] = utils.circular_average(
             slice_thickness, circular_win_size
         ).round(5)
-        errors[print_horn] = utils.movingStd(muscle_thickness, std_win_size)
+        errors[print_horn] = utils.moving_std(muscle_thickness, std_win_size)
         radius_dict[print_horn] = radius
         length_dict[print_horn] = length
 
@@ -243,10 +245,10 @@ if __name__ == "__main__":
 
     # Plot everything
     if args.no_plot:
-        plots.plotMuscleThickness(avg_thickness, errors)
+        plots.plot_muscle_thickness(avg_thickness, errors)
 
         if len(horns) == 2:
             for horn in horns:
-                plots.plotAngularThickness(
+                plots.plot_angular_thickness(
                     {horn: avg_slice_thickness[horn]}, projection=args.polar
                 )

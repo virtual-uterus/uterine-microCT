@@ -14,7 +14,7 @@ import os
 import numpy as np
 import thickness.utils as utils
 
-from thickness.plots import plotData
+from thickness.plots import plot_data
 from thickness.constants import BASE, HOME
 
 if __name__ == "__main__":
@@ -52,7 +52,7 @@ if __name__ == "__main__":
     param_file = os.path.join(load_directory, args.estrus_config + ".toml")
 
     # Load parameters
-    params = utils.parseTOML(param_file)
+    params = utils.parse_TOML(param_file)
     datasets = params["phases"]  # Dataset names sorted by estrus
     metrics = dict()  # Empty dict to hold results
 
@@ -79,7 +79,7 @@ if __name__ == "__main__":
                     base_name + ".toml",
                 )
 
-            set_params = utils.parseTOML(set_param_file)
+            set_params = utils.parse_TOML(set_param_file)
             split_nb = set_params["split_nb"]
 
             # Read metric data
@@ -120,4 +120,4 @@ if __name__ == "__main__":
                 )
 
         metrics[phase] = np.array(metrics[phase])  # Convert to np array
-    plotData(metrics, args.metric)
+    plot_data(metrics, args.metric)

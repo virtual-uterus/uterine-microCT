@@ -16,7 +16,7 @@ import skimage.draw as skd
 import thickness_analysis.utils as utils
 
 
-def findLineCoordinates(img_shape, centre_point, theta):
+def find_line_coordinates(img_shape, centre_point, theta):
     """Finds the line in the image given an angle and a point.
 
     Arguments:
@@ -37,8 +37,8 @@ def findLineCoordinates(img_shape, centre_point, theta):
 
     if theta != np.pi:
         y_points = np.arange(0, img_shape[0], 0.3)
-        x_points = ((y_centre - y_points) * np.cos(theta)) / \
-            np.sin(theta) + x_centre
+        x_points = ((y_centre - y_points) * np.cos(theta)) / np.sin(theta)
+        x_points += x_centre
         x_points = x_points.astype(int)  # Convert to int
         y_points = y_points.astype(int)  # Convert to int
 
@@ -56,12 +56,16 @@ def findLineCoordinates(img_shape, centre_point, theta):
 
     # Create the line and get the pixel values that it cuts through
     line_y, line_x = skd.line(
-        y_points[0], x_points[0], y_points[-1], x_points[-1])
+        y_points[0],
+        x_points[0],
+        y_points[-1],
+        x_points[-1],
+    )
 
     return line_x, line_y
 
 
-def separationLine(img_shape, centre_point, normal):
+def separation_line(img_shape, centre_point, normal):
     """Finds the line in the image given a normal and a point.
 
     Arguments:
@@ -92,14 +96,16 @@ def separationLine(img_shape, centre_point, normal):
     ]
     x_points, y_points = zip(*points)
     line_y, line_x = skd.line(
-        int(y_points[0]), int(x_points[0]), int(
-            y_points[-1]), int(x_points[-1])
+        int(y_points[0]),
+        int(x_points[0]),
+        int(y_points[-1]),
+        int(x_points[-1]),
     )
 
     return line_x, line_y
 
 
-def excludeCentralPoints(img, centre_points, projection_points, horn):
+def exclude_central_points(img, centre_points, projection_points, horn):
     """Changes coordinates of points in the exclusion zone to [0, 0]
 
     Arguments:
@@ -136,9 +142,12 @@ def excludeCentralPoints(img, centre_points, projection_points, horn):
             h_point = [hline_x[coords[0] - 1], hline_y[coords[0] - 1]]
 
             # Create the lines delimiting the exclusion zone
-            first_vline_x, first_vline_y = separationLine(
-                img.shape, h_point, normal)
-            second_vline_x, second_vline_y = separationLine(
+            first_vline_x, first_vline_y = separation_line(
+                img.shape,
+                h_point,
+                normal,
+            )
+            second_vline_x, second_vline_y = separation_line(
                 img.shape, centre_points[2:4], normal
             )
 
@@ -146,11 +155,14 @@ def excludeCentralPoints(img, centre_points, projection_points, horn):
             h_point = [hline_x[coords[1] + 1], hline_y[coords[1] + 1]]
 
             # Create the lines delimiting the exclusion zone
-            first_vline_x, first_vline_y = separationLine(
+            first_vline_x, first_vline_y = separation_line(
                 img.shape, centre_points[2:4], normal
             )
-            second_vline_x, second_vline_y = separationLine(
-                img.shape, h_point, normal)
+            second_vline_x, second_vline_y = separation_line(
+                img.shape,
+                h_point,
+                normal,
+            )
 
     first_vline_vector = utils.getVector(
         np.array([first_vline_x[0], first_vline_y[0]]),
@@ -173,9 +185,13 @@ def excludeCentralPoints(img, centre_points, projection_points, horn):
     for i, point in enumerate(projection_points):
         # Check if points are in exclusion zone
         vec1 = utils.getVector(
-            np.array([first_vline_x[0], first_vline_y[0]]), point)
+            np.array([first_vline_x[0], first_vline_y[0]]),
+            point,
+        )
         vec2 = utils.getVector(
-            np.array([second_vline_x[0], second_vline_y[0]]), point)
+            np.array([second_vline_x[0], second_vline_y[0]]),
+            point,
+        )
 
         angle1 = utils.getAngle(vec1, unit_vector)
         angle2 = utils.getAngle(vec2, unit_vector)
@@ -198,7 +214,7 @@ def excludeCentralPoints(img, centre_points, projection_points, horn):
     return projection_points
 
 
-def findProjectionPoints(img, centre_points, nb_points, horn):
+def find_projection_points(img, centre_points, nb_points, horn):
     """Find the projection points from the centre point onto the muscle
     layers given the desired number of points.
 
@@ -233,13 +249,13 @@ def findProjectionPoints(img, centre_points, nb_points, horn):
         )
 
         # Use the middle point to draw a line
-        line_x, _ = separationLine(img.shape, centre_points[2:4], normal)
+        line_x, _ = separation_line(img.shape, centre_points[2:4], normal)
 
         for i in range(len(line_x)):
             # Clear half of the image based on the horn
             match horn:
                 case "left":
-                    img[i, line_x[i]:] = 0
+                    img[i, line_x[i] :] = 0
 
                 case "right":
                     img[i, : line_x[i] + 1] = 0
@@ -254,7 +270,7 @@ def findProjectionPoints(img, centre_points, nb_points, horn):
 
     for i, theta in enumerate(angles):
         # Find the line for the given angle
-        line_x, line_y = findLineCoordinates(img.shape, centre_point, theta)
+        line_x, line_y = find_line_coordinates(img.shape, centre_point, theta)
         line = img[line_y, line_x]
 
         # Find the indices of rising and falling edges
@@ -266,20 +282,24 @@ def findProjectionPoints(img, centre_points, nb_points, horn):
         x_coords = line_x[coords]
         y_coords = line_y[coords]
 
-        points = createProjectionPointCoords(
-            x_coords, y_coords, centre_point, theta)
+        points = create_projection_point_coords(
+            x_coords,
+            y_coords,
+            centre_point,
+            theta,
+        )
 
-        projection_points[i * 4: (i + 1) * 4] = points
+        projection_points[(i * 4) : (i + 1) * 4] = points
 
     if (centre_points[2:4] != np.array([0, 0])).all():
-        projection_points = excludeCentralPoints(
+        projection_points = exclude_central_points(
             img, centre_points, projection_points, horn
         )
 
     return projection_points
 
 
-def createProjectionPointCoords(x_coords, y_coords, centre_point, theta):
+def create_projection_point_coords(x_coords, y_coords, centre_point, theta):
     """Creates the (x, y) pairs of coordinates for the projection points
 
     The points that are to the right of the centre point are placed first
@@ -304,7 +324,8 @@ def createProjectionPointCoords(x_coords, y_coords, centre_point, theta):
 
     except AssertionError:
         sys.stderr.write(
-            "Error: x_coords and y_coords should have the same size.\n")
+            "Error: x_coords and y_coords should have the same size.\n",
+        )
         exit(1)
 
     transpose = False
@@ -388,7 +409,7 @@ def createProjectionPointCoords(x_coords, y_coords, centre_point, theta):
     return projection_points
 
 
-def alignBorder(thickness):
+def align_border(thickness):
     """Organises the thickness array to align the first value
         with the anti-mesometrial border
 
@@ -407,7 +428,11 @@ def alignBorder(thickness):
 
     # Order thickness to go from 0 to 2pi
     ordered_thickness = np.concatenate(
-        (thickness[right_half], thickness[left_half]))
+        (
+            thickness[right_half],
+            thickness[left_half],
+        )
+    )
 
     # Find the maximal thickness which typically is AM border
     max_idx = np.argmax(ordered_thickness)
@@ -430,7 +455,13 @@ def alignBorder(thickness):
     return ordered_thickness
 
 
-def estimateMuscleThickness(img_stack, centreline, nb_points, slice_nbs, horn):
+def estimate_muscle_thickness(
+    img_stack,
+    centreline,
+    nb_points,
+    slice_nbs,
+    horn,
+):
     """Estimates the muscle thickness of each slice
 
     Arguments:
@@ -442,8 +473,8 @@ def estimateMuscleThickness(img_stack, centreline, nb_points, slice_nbs, horn):
     horn -- str {left, right}, horn that is being analysed.
 
     Return:
-    muscle_thickness_array -- ndarray, muscle thickness of each slice.
-    slice_thickness_array -- ndarray, muscle thickness at different angles
+    muscle_thickness_arr -- ndarray, muscle thickness of each slice.
+    slice_thickness_arr -- ndarray, muscle thickness at different angles
         for three slices.
     radius_array -- ndarray, average radius of each slice.
 
@@ -453,14 +484,14 @@ def estimateMuscleThickness(img_stack, centreline, nb_points, slice_nbs, horn):
 
     except AssertionError:
         sys.stderr.write(
-            "Error: the image stack and the centreline do not  have the same size.\n",
+            "Error: image stack and centreline do not have the same size.\n",
         )
         exit()
 
     nb_imgs = len(img_stack)
-    muscle_thickness_array = np.zeros(nb_imgs)
+    muscle_thickness_arr = np.zeros(nb_imgs)
     radius_array = np.zeros(nb_imgs)
-    slice_thickness_array = list()
+    slice_thickness_arr = list()
     idx_removed_slices = list()
 
     # Create error log file
@@ -475,7 +506,7 @@ def estimateMuscleThickness(img_stack, centreline, nb_points, slice_nbs, horn):
 
     for i, img in enumerate(img_stack):
         try:
-            projection_points = findProjectionPoints(
+            projection_points = find_projection_points(
                 img, centreline[i, :], nb_points, horn
             )
 
@@ -485,8 +516,9 @@ def estimateMuscleThickness(img_stack, centreline, nb_points, slice_nbs, horn):
 
             exclusion_indices = np.where(thickness == 0)[0]
             thickness[exclusion_indices] = float("nan")
-            muscle_thickness_array[i] = np.mean(
-                thickness[~np.isnan(thickness)])
+            muscle_thickness_arr[i] = np.mean(
+                thickness[~np.isnan(thickness)],
+            )
 
             # Get points in the inner layer of muscles
             inner_points = projection_points[
@@ -510,18 +542,21 @@ def estimateMuscleThickness(img_stack, centreline, nb_points, slice_nbs, horn):
             )
 
             if i in slice_nbs:
-                ordered_thickness = alignBorder(thickness)
-                slice_thickness_array.append(ordered_thickness)
+                ordered_thickness = align_border(thickness)
+                slice_thickness_arr.append(ordered_thickness)
 
         except Exception as err:
             # Write to stderr and add slice number to the remove list
             sys.stderr.write(
-                "Warning: unable to process image number {}\n".format(i))
+                "Warning: unable to process image number {}\n".format(i),
+            )
             idx_removed_slices.append(i)
             logger.exception(err)
     # Remove the slices the values of the slices that were not processed
-    muscle_thickness_array = np.delete(
-        muscle_thickness_array, idx_removed_slices)
+    muscle_thickness_arr = np.delete(
+        muscle_thickness_arr,
+        idx_removed_slices,
+    )
 
-    radius_array = np.delete(radius_array, idx_removed_slices)
-    return muscle_thickness_array, np.transpose(slice_thickness_array), radius_array
+    radius_arr = np.delete(radius_array, idx_removed_slices)
+    return muscle_thickness_arr, np.transpose(slice_thickness_arr), radius_arr

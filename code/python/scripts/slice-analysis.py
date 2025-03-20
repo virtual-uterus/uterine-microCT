@@ -82,7 +82,7 @@ if __name__ == "__main__":
     load_directory = os.path.join(HOME, BASE, args.dir_path, args.base_name)
 
     param_file = os.path.join(load_directory, args.base_name + ".toml")
-    params = utils.parseTOML(param_file)
+    params = utils.parse_TOML(param_file)
     params = params["thickness"]  # Extract the thickness parameters
 
     # Add the muscle segmentation to the load directory
@@ -103,7 +103,7 @@ if __name__ == "__main__":
     for i, horn in enumerate(horns):
         print("Processing {} horn".format(horn))
         print("   Loading mask stack")
-        mask_stack = utils.loadImageStack(
+        mask_stack = utils.load_image_stack(
             os.path.join(load_directory, "{}".format(horn)),
             extension=args.extension,
         )
@@ -123,7 +123,7 @@ if __name__ == "__main__":
             centreline[0][0:4] = np.array([325, y_coord, 325, y_coord])
 
         print("   Estimating muscle thickness")
-        muscle_thick, slice_thick, _ = projection.estimateMuscleThickness(
+        muscle_thick, slice_thick, _ = projection.estimate_muscle_thickness(
             mask_stack,
             centreline,
             args.points,
@@ -142,25 +142,25 @@ if __name__ == "__main__":
         )
 
         if args.switch:
-            avg_slice_thick[horns[i - 1]] = utils.circularAverage(
+            avg_slice_thick[horns[i - 1]] = utils.circular_average(
                 slice_thick, circular_win_size
             ).round(5)
 
         else:
-            avg_slice_thick[horn] = utils.circularAverage(
+            avg_slice_thick[horn] = utils.circular_average(
                 slice_thick, circular_win_size
             ).round(5)
 
         # Plot everything
     if len(horns) == 2:
         for horn in horns:
-            plots.plotAngularThickness(
+            plots.plot_angular_thickness(
                 {horn: avg_slice_thick[horn]},
                 projection=args.polar,
                 uCT_flag=args.uCT_flag,
             )
     else:
-        plots.plotAngularThickness(
+        plots.plot_angular_thickness(
             avg_slice_thick, projection=args.polar, uCT_flag=args.uCT_flag
         )
 

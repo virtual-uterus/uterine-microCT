@@ -14,7 +14,7 @@ import numpy as np
 from thickness.constants import LEFT, BOTTOM, RIGHT, COLOURS, Y_LABELS
 
 
-def plotProjectionPoints(img, centre, projection_points):
+def plot_projection_points(img, centre, projection_points):
     """Plots the centre point and projection points of an image
 
     Arguments:
@@ -36,7 +36,7 @@ def plotProjectionPoints(img, centre, projection_points):
     plt.show()
 
 
-def plotMuscleThickness(muscle_thickness, errors):
+def plot_muscle_thickness(muscle_thickness, errors):
     """Plots the muscle thickness of both horns on the same plot
 
     The number of points is normalised so that both sets are shown
@@ -83,7 +83,7 @@ def plotMuscleThickness(muscle_thickness, errors):
     plt.show()
 
 
-def plotAngularThickness(slice_thickness, projection=False, uCT_flag=True):
+def plot_angular_thickness(slice_thickness, projection=False, uCT_flag=True):
     """Plots the muscle thickness of one slice as a function of the
     angle theta
 
@@ -215,7 +215,7 @@ def plotAngularThickness(slice_thickness, projection=False, uCT_flag=True):
     plt.show()
 
 
-def plotData(data, metric):
+def plot_data(data, metric):
     """Plots the selected data.
 
     Arguments:
