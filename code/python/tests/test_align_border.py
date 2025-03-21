@@ -18,9 +18,9 @@ from thickness.constants import BASE, HOME
 def alignBorderTest():
     """Tests the alignment alogrithm
 
-    Arguments:
+    Args:
 
-    Return:
+    Returns:
 
     """
     _dir = HOME + "/" + BASE + "/uterine-microCT/data/tests/"

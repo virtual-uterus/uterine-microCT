@@ -19,12 +19,12 @@ import thickness.utils as utils
 def find_line_coordinates(img_shape, centre_point, theta):
     """Finds the line in the image given an angle and a point.
 
-    Arguments:
+    Args:
     img_shape -- ndarray, shape of the image that is being analysed.
     centre_point -- ndarray, coordinates of the centre point (XY).
     theta -- angle in radians.
 
-    Return:
+    Returns:
     line_x -- list[int], x coordinates of the line that belong to the
         image.
     line_y -- list[int], y coordinates of the line that belong to the
@@ -68,12 +68,12 @@ def find_line_coordinates(img_shape, centre_point, theta):
 def separation_line(img_shape, centre_point, normal):
     """Finds the line in the image given a normal and a point.
 
-    Arguments:
+    Args:
     img_shape -- ndarray, shape of the image that is being analysed.
     centre_point -- ndarray, coordinates of the centre point (XY).
     normal -- ndarray, coordinates of the normal vector.
 
-    Return:
+    Returns:
     line_x -- list[int], x coordinates of the line that belong to the
         image.
     line_y -- list[int], y coordinates of the line that belong to the
@@ -108,14 +108,14 @@ def separation_line(img_shape, centre_point, normal):
 def exclude_central_points(img, centre_points, projection_points, horn):
     """Changes coordinates of points in the exclusion zone to [0, 0]
 
-    Arguments:
+    Args:
     img -- ndarray, image to analyse.
     centre_points -- list[int], coordinates of the centre points (XY).
     projection_points -- ndarray, list of the coordinates of the
         projection points.
     horn -- str {left, right}, horn that is being analysed.
 
-    Return:
+    Returns:
     projection_points -- ndarray, list of the coordinates of the
         projection points with [0, 0] coordinates if in the exclusion zone.
     """
@@ -218,14 +218,14 @@ def find_projection_points(img, centre_points, nb_points, horn):
     """Find the projection points from the centre point onto the muscle
     layers given the desired number of points.
 
-    Arguments:
+    Args:
     img -- ndarray, image to analyse.
     centre_points -- list[int], coordinates of the centre points (XY).
     nb_points -- int, number of desired projection points, must be a
         multiple of 2.
     horn -- str {left, right}, horn that is being analysed.
 
-    Return:
+    Returns:
     projection_points -- ndarray, list of the coordinates of the
         projection points.
 
@@ -306,7 +306,7 @@ def create_projection_point_coords(x_coords, y_coords, centre_point, theta):
     in the array. In the case of the vertical line, the top points are
     placed first.
 
-    Arguments:
+    Args:
     x_coords -- list[int], list of coordinates of the projection points on
         the x axis.
     y_coords -- list[int], list of coordinates of the projection points on
@@ -314,7 +314,7 @@ def create_projection_point_coords(x_coords, y_coords, centre_point, theta):
     centre_point -- ndarray, coordinates of the centre point (XY)
     theta -- float, angle at which the projection line is on.
 
-    Return:
+    Returns:
     projection_points -- ndarray, list of coordinates of the
         projection points.
 
@@ -413,10 +413,10 @@ def align_border(thickness):
     """Organises the thickness array to align the first value
         with the anti-mesometrial border
 
-    Arguments:
+    Args:
     thickness -- ndarray, array of thickness for each angle.
 
-    Return:
+    Returns:
     ordered_thickness -- ndarray, ordered thickness array.
 
     """
@@ -464,7 +464,7 @@ def estimate_muscle_thickness(
 ):
     """Estimates the muscle thickness of each slice
 
-    Arguments:
+    Args:
     img_stack -- ndarray, stack of images to process (ZXY dimensions).
     centreline -- ndarray, coordinates of the centre point on each slice.
     nb_points -- int, number of points to use for projection.
@@ -472,7 +472,7 @@ def estimate_muscle_thickness(
         angular thickness.
     horn -- str {left, right}, horn that is being analysed.
 
-    Return:
+    Returns:
     muscle_thickness_arr -- ndarray, muscle thickness of each slice.
     slice_thickness_arr -- ndarray, muscle thickness at different angles
         for three slices.

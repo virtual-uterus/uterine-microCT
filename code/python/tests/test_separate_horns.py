@@ -21,9 +21,9 @@ from thickness.constants import BASE, HOME
 def separateHornsTest():
     """Tests the horn separation algorithm on test images
 
-    Arguments:
+    Args:
 
-    Return:
+    Returns:
 
     """
     _dir = HOME + "/" + BASE + "/uterine-microCT/data/tests/"

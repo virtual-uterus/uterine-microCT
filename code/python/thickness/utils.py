@@ -19,11 +19,11 @@ import skimage.io as skio
 def load_image_stack(dir_path, extension="png"):
     """Loads the images found in the directory
 
-    Arguments:
+    Args:
     dir_path -- str, path to the folder containing the images.
     extension -- str, image extension, default value png.
 
-    Return:
+    Returns:
     img_stack -- ndarray, image stack.
 
     """
@@ -67,7 +67,7 @@ def save_image_stack(
 ):
     """Saves the images in the stack to the save directory
 
-    Arguments:
+    Args:
     img_stack -- ndarray, stack of images to save.
     save_path -- str, path of the directory in which to save images.
     img_prefix -- str, prefix for the images in the stack.
@@ -75,7 +75,7 @@ def save_image_stack(
             default value 0.
     extension -- str, image extension, default value png.
 
-    Return:
+    Returns:
 
     """
     if not os.path.isdir(save_path):
@@ -107,11 +107,11 @@ def save_image_stack(
 def get_vector(p1, p2):
     """Finds the vector given two points
 
-    Arguments:
+    Args:
     p1 -- np.array, first point.
     p2 -- np.array, second point.
 
-    Return:
+    Returns:
     vec -- np.array, normalised vector between p1 and p2.
 
     """
@@ -131,11 +131,11 @@ def get_vector(p1, p2):
 def get_angle(v1, v2):
     """Finds the angle given two vectors
 
-    Arguments:
+    Args:
     v1 -- np.array, first vector.
     v2 -- np.array, second vector.
 
-    Return:
+    Returns:
     angle -- float, angle between v1 and v2 in rad.
 
     """
@@ -156,10 +156,10 @@ def get_angle(v1, v2):
 def parse_TOML(toml_file):
     """Parse a toml file
 
-    Arguments:
+    Args:
     toml_file -- str, path to the toml file.
 
-    Return:
+    Returns:
     data -- dict, dictonary containing the parameters.
 
     """
@@ -172,11 +172,11 @@ def parse_TOML(toml_file):
 def find_padding(cur_size, new_size):
     """Finds the padding size to add to be able to split an image
 
-    Arguments:
+    Args:
     cur_size -- int, current size.
     new_size -- int, desired size.
 
-    Return:
+    Returns:
     pad -- int, padding value to make the cur_size divisible by new_size.
 
     """
@@ -189,11 +189,11 @@ def find_padding(cur_size, new_size):
 def moving_average(array, window_size):
     """Computes the moving average of an array
 
-    Arguments:
+    Args:
     array -- ndarray, array over which to compute the average.
     window_size -- int, size of the window over which to compute.
 
-    Return:
+    Returns:
     averaged_array -- ndarray, values of the moving average.
 
     """
@@ -221,11 +221,11 @@ def moving_average(array, window_size):
 def circular_average(array, window_size):
     """Computes the average for a circular array
 
-    Arguments:
+    Args:
     array -- ndarray, array over which to compute the standard deviation.
     window_size -- int, size of the window over which to compute.
 
-    Return:
+    Returns:
     mean_array -- ndarray, values of the moving standard deviation.
 
     """
@@ -259,11 +259,11 @@ def circular_average(array, window_size):
 def moving_std(array, window_size):
     """Computes the standard deviation for each window
 
-    Arguments:
+    Args:
     array -- ndarray, array over which to compute the standard deviation.
     window_size -- int, size of the window over which to compute.
 
-    Return:
+    Returns:
     std_array -- ndarray, values of the moving standard deviation.
 
     """
@@ -278,7 +278,7 @@ def moving_std(array, window_size):
         return [np.std(array)]
 
     for i in range(0, array_size // window_size):
-        window = array[i * window_size : (i + 1) * window_size]
+        window = array[i * window_size: (i + 1) * window_size]
         std_array[i * window_size + window_size // 5] = np.std(window)
 
     return std_array
@@ -287,14 +287,14 @@ def moving_std(array, window_size):
 def write_exelem_vol(file_path, elements, thickness=True):
     """Writes out the data from a volumetric mesh to a exnode file
 
-    Arguments:
+    Args:
     file_path -- str, path to the file to save to.
     elements -- ndarray, list of nodes associated with each tetrahedra,
             size = Nx4.
     thickness -- bool, flag used if thickness has been provided to the
             exnode file, default True.
 
-    Return:
+    Returns:
 
     """
     try:
@@ -393,14 +393,14 @@ def write_exelem_vol(file_path, elements, thickness=True):
 def write_exelem_surf(file_path, elements, thickness=True):
     """Writes out the data from a surface mesh to a exnode file
 
-    Arguments:
+    Args:
     file_path -- str, path to the file to save to.
     elements -- ndarray, list of nodes associated with each triangle,
             size = Nx3.
     thickness -- bool, flag used if thickness has been provided to the
             exnode file, default True.
 
-    Return:
+    Returns:
 
     """
     try:
@@ -485,16 +485,16 @@ def write_exelem_surf(file_path, elements, thickness=True):
 
 def write_exnode(file_path, nodes, thickness=None):
     """Writes out the nodes from a mesh to a exnode file,
-            and adds the thickness field if provided
+    and adds the thickness field if provided
 
-    Arguments:
+    Args:
     file_path -- str, path to the file to save to.
     nodes -- ndarray, list of coordinates for each node.
             size = Nx3
     thickness -- ndarray, list of thickness value for each node.
             size = Nx1, default value None.
 
-    Return:
+    Returns:
 
     """
     try:

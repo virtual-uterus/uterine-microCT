@@ -20,9 +20,9 @@ from thickness.constants import BASE, HOME
 def centrePointsTest():
     """Tests the location of the centre points in test images
 
-    Arguments:
+    Args:
 
-    Return:
+    Returns:
 
     """
     _dir = HOME + "/" + BASE + "/uterine-microCT/data/tests/"

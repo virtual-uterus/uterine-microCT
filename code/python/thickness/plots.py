@@ -17,12 +17,12 @@ from thickness.constants import LEFT, BOTTOM, RIGHT, COLOURS, Y_LABELS
 def plot_projection_points(img, centre, projection_points):
     """Plots the centre point and projection points of an image
 
-    Arguments:
+    Args:
     img -- ndarray, image to display.
     centre -- ndarray, coordinates of the centre point (XY).
     projection_points -- ndarray, coordinates of the projection points (XY).
 
-    Return:
+    Returns:
 
     """
     fig, ax = plt.subplots(dpi=300)
@@ -42,11 +42,11 @@ def plot_muscle_thickness(muscle_thickness, errors):
     The number of points is normalised so that both sets are shown
     between 0 and 1
 
-    Arguments:
+    Args:
     muscle_thickness -- dict(ndarray), thickness of the horns.
     errors -- dict(ndarray), errors for the muscle thickness.
 
-    Return:
+    Returns:
 
     """
     fig, ax = plt.subplots(dpi=300)
@@ -87,14 +87,14 @@ def plot_angular_thickness(slice_thickness, projection=False, uCT_flag=True):
     """Plots the muscle thickness of one slice as a function of the
     angle theta
 
-    Arguments:
+    Args:
     slice_thickness -- dict(ndarray), array containing the angluar thickness
         of four slices for each horn.
     projection -- str, projection type of the plot, default value False.
     uCT_flag -- bool, True if the data is from microCT False if the data is
         from histology, default value True.
 
-    Return:
+    Returns:
 
     """
     fig, ax = plt.subplots(
@@ -170,7 +170,8 @@ def plot_angular_thickness(slice_thickness, projection=False, uCT_flag=True):
             angle = np.deg2rad(25)
             plt.legend(
                 loc="lower left",
-                bbox_to_anchor=(0.5 + np.cos(angle) / 2, 0.5 + np.sin(angle) / 2),
+                bbox_to_anchor=(0.5 + np.cos(angle) / 2,
+                                0.5 + np.sin(angle) / 2),
             )
 
             plt.xticks(
@@ -218,11 +219,11 @@ def plot_angular_thickness(slice_thickness, projection=False, uCT_flag=True):
 def plot_data(data, metric):
     """Plots the selected data.
 
-    Arguments:
+    Args:
     data -- dict(list(float))), dictionnary with estrus phases as keys and
     lists of metric values as values
 
-    Return:
+    Returns:
 
     """
     fig, ax = plt.subplots(dpi=300)
