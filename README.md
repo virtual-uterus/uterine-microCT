@@ -79,24 +79,35 @@ downsampled dataset (AWA015_PTA_1_Rec_Trans_downsampled.toml). Example of the co
 
 <a id="usage"></a>
 ## Usage 
-The main scripts used in this project are contained in the m_scripts folder for the MATLAB code and in the p_scripts for the Python code.
+The code is split into two folders, the MATLAB folder contains the code used in MATLAB and the python folder the code used in Python
 
 <a id="setup"></a>
 ### Setup
-Install the Python packages and add the location of the code to your PYTHONPATH by running the setup
-script:
+First clone the project into *uterine-microCT* and enter the new directory:
 ```bash
-./setup
+$ git clone git@github.com/virtual-uterus/uterine-microCT.git
 ```
 
-In MATLAB, add the code folder and subfolders to the MATLAB search path.
+It is recommended to create a virtual environment in which to run the code. Create a virtual environment and activate it:
+```bash
+$ python3 -m venv ~/venv/microCT-env
+$ source ~/venv/microCT-env/bin/activate
+```
+
+Install the Python package with the following commands:
+```bash
+$ cd /path/to/uterine-microCT
+$ pip3 install -e .
+```
+
+To setup the MATLAB code, in MATLAB, add the code folder and subfolders to the MATLAB search path.
 
 The subfolders of the data folder are not automatically generated; thus, they have to be created beforehand
 following the structure presented in the previous section.
 
-The MATLAB and Python scripts use a base directory which is the path to the microCT folder from $HOME.
+The MATLAB and Python scripts use a base directory which is the path to the uterine-microCT folder from $HOME.
 The default path is Documents/phd. The base directory can be changed for the MATLAB scripts by editing 
-the __baseDir.m__ function and for the Python scripts by editing the BASE variable in the __utils.py__ file. Both of these files are located in the utils folder. 
+the __baseDir.m__ function in the code/MATLAB/utils folder and for the Python scripts by editing the BASE variable in the __constants.py__ file in the code/python/thickness folder.
 
 <a id="resampling"></a>
 ### Resampling 
@@ -132,28 +143,28 @@ The model uses the code from GitHub user Karol Żak. The code is available under
 ##### Training
 The training images should be placed in a specific folder with an imgs folder containing the $`mu`$CT images an a masks folder containing the training masks. The images should be 512 x 512 pixels.
 
-The **resizeImages.py** script is used to resize images to be 512 x 512 pixels by splitting images into blocks of 512 x 512 pixels. If they are smaller than the required dimensions, they are simply padded with 0s. The script creates a folder called imgs, if it does not already exist, to save the resized images in. To see the arguments and options of the script, use the --help flag:
+The **resize-images.py** script is used to resize images to be 512 x 512 pixels by splitting images into blocks of 512 x 512 pixels. If they are smaller than the required dimensions, they are simply padded with 0s. The script creates a folder called imgs, if it does not already exist, to save the resized images in. To see the arguments and options of the script, use the --help flag:
 ```bash
-python3 resizeImages.py --help
+python3 resize-images.py --help
 ```
 
-The **unetTraining.py** script trains the network using the images in the training folder. The images and masks are read from the imgs and masks folder inside the training folder. The model is saved as unet-model_vX.h5 and the weights are saved as unet-weights_vX.keras, where X is replaced with the value for the version argument of the script.
+The **unet-training.py** script trains the network using the images in the training folder. The images and masks are read from the imgs and masks folder inside the training folder. The model is saved as unet-model_vX.h5 and the weights are saved as unet-weights_vX.keras, where X is replaced with the value for the version argument of the script.
 To see the arguments and options of the script, use the --help flag:
 ```bash
-python3 unetTraining.py --help
+python3 unet-training.py --help
 ```
 
 ##### Segmenting
-The **unetSegment.py** script segments a dataset using a trained model. The images should be 512 x 512 pixels and placed in the imgs folder of the dataset directory. The segmentation masks are saved in the masks folder of that directory. If that folder does not exist, the script will create it.
+The **unet-segment.py** script segments a dataset using a trained model. The images should be 512 x 512 pixels and placed in the imgs folder of the dataset directory. The segmentation masks are saved in the masks folder of that directory. If that folder does not exist, the script will create it.
 To see the arguments and options of the script, use the --help flag:
 ```bash
-python3 unetSegment.py --help
+python3 unet-segment.py --help
 ```
 
-The segmentation masks will be 512 x 512 images. The **stitchImages.py** script is used to stitch the image blocks back into their original dimensions. The script will read the images placed in the masks folder and can therefore be used immediately after the **unetSegment.py** script. The stitched images are saved in the stitched folder of that directory. If that folder does not exist, the script will create it.
+The segmentation masks will be 512 x 512 images. The **stitch-images.py** script is used to stitch the image blocks back into their original dimensions. The script will read the images placed in the masks folder and can therefore be used immediately after the **unet-segment.py** script. The stitched images are saved in the stitched folder of that directory. If that folder does not exist, the script will create it.
 To see the arguments and options of the script, use the --help flag:
 ```bash
-python3 stitchImages.py --help
+python3 stitch-images.py --help
 ```
 <a id="format-conversion"></a>
 #### Format conversion
@@ -219,33 +230,14 @@ centreline.mat file created with the __uCTCentreline.m__ script. If no centrelin
 are assumed to be aligned with the z-axis and the fibres are annotated based on the angle relative to the
 vector [0 0 1].
 
-The __STPipeline.m__ script will generate .exnode and .exelem files that can be visualised in cmgui. The
+The __STPipeline.m__ script will generate .exnode and .exelem files that can be visualised in cmgui. Additionally, ortho files can be generated if the ortho flag is set to true. The MESH_elements.ortho is used for simulations in Chaste, the MESH_points.ortho is used for visualisation in Paraview (see the [symmesh](https://github.com/virtual-uterus/symmesh) repository for more information). The
 parameters for the script can be set in the configuration file.
 
 This code was written by Mark Trew.
 
-<a id="mesh"></a>
-#### Mesh generation 
-The segmentation masks can be used to generate a surface mesh with software such as 
-[ITK-SNAP](http://www.itksnap.org/pmwiki/pmwiki.php). The __mesh-annotation.py__ script annotated a mesh
-(surface or volumetric) with the thickness data calculated previously. To see the arguments and options 
-of the script, use the --help flag:
-```bash
-python3 mesh-annotation.py --help
-```
-The supported file types for the mesh are .vtk, and .vtu.
-
-The __mesh-converter.py__ script converts a mesh (surface or volumetric) to .exnode and .exelem files to
-be visualised in cmgui. The mesh can be annotated with the thickness information. 
-To see the arguments and options of the script, use the --help flag:
-```bash
-python3 mesh-converter.py --help
-```
-The supported file types for the mesh are .vtk, and .vtu.
-
 <a id="visualisation"></a>
 ### Visualisation 
-To visualise the meshes and fibres in cmgui, com files are located in the com folder.\
+To visualise the fibres in Cmgui, com files are located in the com folder.\
 Below is an example of a figure generated for the article using the 
 AWA015_PTA_1_Rec_Trans_L4_fibres.com (A) and the AWA015_PTA_2_Ova_Rec_Trans_L5_fibres.com (B) com files,
 which shows the fibres found in the uterus and in a smaller section
@@ -253,13 +245,6 @@ of the uterus located near the ovaries.
 
 ![alt text](img/fibres.png "Example of a figure generated for the article using the 
 AWA015_PTA_1_Rec_Trans_L4_fibres.com (A) and the AWA015_PTA_2_Ova_Rec_Trans_L5_fibres.com (B) com files")
-
-Below is an example of a figure generated for the article using the 
-AWA015_PTA_1_Rec_Trans_thickness_mesh.com (A) files which show the thickness of the muscle layers in the uterus and the mesh after a longitudinal cut (B).
-
-![alt text](img/meshes.png "Example of a figure generated for the article using the 
-AWA015_PTA_1_Rec_Trans_thickness_mesh.com full view (A) and the AWA015_PTA_1_Rec_Trans_thickness_mesh.com clipped view (B) 
-com files.")
 
 <a id="comp"></a>
 ## Estrus comparison
@@ -296,4 +281,4 @@ The tests are piloted by the test.toml configuration file, which can be found in
 
 <a id="data-availability"></a>
 ## Data availability
-The $`\mu`$CT dataset used, the meshes generated, and the UNet model weights are available [here](https://auckland.figshare.com/projects/Three-dimensional_virtual_histology_of_the_rat_uterus_musculature_using_micro-computed_tomography/167804).
+The $`\mu`$CT dataset used and the UNet model weights are available [here](https://auckland.figshare.com/projects/Three-dimensional_virtual_histology_of_the_rat_uterus_musculature_using_micro-computed_tomography/167804).
