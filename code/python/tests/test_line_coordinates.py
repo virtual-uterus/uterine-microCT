@@ -1,16 +1,21 @@
 #!/usr/bin/env python3
 # -*- coding: utf-8 -*-
-#
-# testLineCoordinates.py: Test function for the line coordinates algorithm
-# Author: Mathias Roesler
-# Last modified: 11/23
+"""
+testLineCoordinates.py
+
+Test function for the line coordinates algorithm
+Author: Mathias Roesler
+Date: 11/23
+"""
 
 import matplotlib.pyplot as plt
 import numpy as np
 import scipy.io
 
-import thickness_analysis.projection as projection
-import utils.utils as utils
+import thickness.projection as projection
+import thickness.utils as utils
+
+from thickness.constants import BASE, HOME
 
 
 def lineCoordinatesTest():
@@ -21,16 +26,16 @@ def lineCoordinatesTest():
     Return:
 
     """
-    _dir = utils.HOME + "/" + utils.BASE + "/microCT/data/tests/"
+    _dir = HOME + "/" + BASE + "/uterine-microCT/data/tests/"
     param_file = _dir + "test.toml"
-    params = utils.parseTOML(param_file)
+    params = utils.parse_TOML(param_file)
     cnt = 0  # Counter for theta
     _theta = [np.pi / 4, np.pi / 2, 3 * np.pi / 4, np.pi]
 
     for dataset in params["sets"]:
         print("Testing set {}".format(dataset))
         test_dir = _dir + dataset + "/muscle_segmentation"
-        img_stack = utils.loadImageStack(test_dir)  # Load test images
+        img_stack = utils.load_image_stack(test_dir)  # Load test images
         centreline_dict = scipy.io.loadmat(test_dir + "/centreline.mat")
         centreline = np.transpose(centreline_dict["centreline"])
         centreline = np.round(centreline).astype(int)  # Convert to int
@@ -43,11 +48,11 @@ def lineCoordinatesTest():
                 centre_point = centreline[i, 4:6]
 
             img = img_stack[i]
-            line_x, line_y = projection.findLineCoordinates(
+            line_x, line_y = projection.find_line_coordinates(
                 img.shape, centre_point, _theta[cnt]
             )
 
-            cnt += 1  # Increment counter
+            cnt = (cnt + 1) % 4  # Increment counter
 
             plt.imshow(img, cmap="gray")
             plt.plot(line_x, line_y)

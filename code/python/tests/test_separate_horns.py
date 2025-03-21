@@ -1,16 +1,21 @@
 #!/usr/bin/env python3
 # -*- coding: utf-8 -*-
-#
-# testSeparateHorns.py: Test function for the horn separation algorithm
-# Author: Mathias Roesler
-# Last modified: 11/23
+"""
+testSeparateHorns.py
+
+Test function for the horn separation algorithm
+Author: Mathias Roesler
+Date: 11/23
+"""
 
 import matplotlib.pyplot as plt
 import numpy as np
 import scipy.io
 
-import thickness_analysis.projection as projection
-import utils.utils as utils
+import thickness.projection as projection
+import thickness.utils as utils
+
+from thickness.constants import BASE, HOME
 
 
 def separateHornsTest():
@@ -21,14 +26,14 @@ def separateHornsTest():
     Return:
 
     """
-    _dir = utils.HOME + "/" + utils.BASE + "/microCT/data/tests/"
+    _dir = HOME + "/" + BASE + "/uterine-microCT/data/tests/"
     param_file = _dir + "test.toml"
-    params = utils.parseTOML(param_file)
+    params = utils.parse_TOML(param_file)
 
     for dataset in params["sets"]:
         print("Testing set {}".format(dataset))
         test_dir = _dir + dataset + "/muscle_segmentation"
-        img_stack = utils.loadImageStack(test_dir)  # Load test images
+        img_stack = utils.load_image_stack(test_dir)  # Load test images
         centreline_dict = scipy.io.loadmat(test_dir + "/centreline.mat")
         centreline = np.transpose(centreline_dict["centreline"])
         centreline = np.round(centreline).astype(int)  # Convert to int
@@ -41,12 +46,12 @@ def separateHornsTest():
                 # The horns are not clearly separated, three points are given
                 # Create a vector between the left and right points
 
-                n = utils.getVector(
+                n = utils.get_vector(
                     np.array([centre_point[5], centre_point[0]]),
                     np.array([centre_point[1], centre_point[4]]),
                 )
 
-                line_x, line_y = projection.separationLine(
+                line_x, line_y = projection.separation_line(
                     img.shape, centre_point[2:4], n
                 )
 
