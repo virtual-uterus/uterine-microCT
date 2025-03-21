@@ -1,68 +1,21 @@
 #!/usr/bin/env python3
 # -*- coding: utf-8 -*-
-#
-# estrus-comp.py: Script to compare the results at different estrus stages
-# Author: Mathias Roesler
-# Last modified: 11/24
+"""
+estrus-comp.py
+
+Script to compare the results at different estrus stages
+Author: Mathias Roesler
+Date: 03/25
+"""
 
 import argparse
 import os
 
 import numpy as np
-import matplotlib.pyplot as plt
+import thickness.utils as utils
 
-import thickness_analysis.utils as utils
-
-COLOURS = {"proestrus": "r", "estrus": "b", "metestrus": "g", "diestrus": "k"}
-Y_LABELS = {
-    "muscle_thickness": "Normalised muscle thickness (mm mg$^{-1}$)",
-    "radius": "Normalised horn radius (mm mg$^{-1}$)",
-    "length": "Normalised horn length (mm mg$^{-1}$)",
-}
-LEFT = 0.22
-BOTTOM = 0.17
-RIGHT = 0.80
-
-
-def plotData(data, metric):
-    """Plots the selected data.
-
-    Arguments:
-    data -- dict(list(float))), dictionnary with estrus phases as keys and
-    lists of metric values as values
-
-    Return:
-
-    """
-    fig, ax = plt.subplots(dpi=300)
-
-    for i, stage in enumerate(data.keys()):
-        nb_samples = len(data[stage])
-        np.random.seed(12)  # Reset random seed for all stages to be identical
-        jitter = np.random.uniform(-0.1, 0.1, nb_samples)
-
-        plt.errorbar(
-            (i + 1) * np.ones(nb_samples) + jitter,
-            data[stage][:, 0],
-            data[stage][:, 1],
-            c=COLOURS[stage],
-            marker=".",
-            linestyle="",
-            capsize=3.0,
-        )
-
-    # Reset x-axis ticks
-    plt.xticks(
-        ticks=[1, 2, 3, 4],
-        labels=[estrus.capitalize() for estrus in data.keys()],
-    )
-    plt.xlim([0.5, 4.5])
-    plt.ylim(bottom=0)
-
-    plt.ylabel(Y_LABELS[metric])
-    plt.subplots_adjust(left=LEFT, right=RIGHT, bottom=BOTTOM)
-    plt.show()
-
+from thickness.plots import plot_data
+from thickness.constants import BASE, HOME
 
 if __name__ == "__main__":
     parser = argparse.ArgumentParser(
@@ -95,11 +48,11 @@ if __name__ == "__main__":
     # Parse input arguments
     args = parser.parse_args()
 
-    load_directory = os.path.join(utils.HOME, utils.BASE, args.dir_path)
+    load_directory = os.path.join(HOME, BASE, args.dir_path)
     param_file = os.path.join(load_directory, args.estrus_config + ".toml")
 
     # Load parameters
-    params = utils.parseTOML(param_file)
+    params = utils.parse_TOML(param_file)
     datasets = params["phases"]  # Dataset names sorted by estrus
     metrics = dict()  # Empty dict to hold results
 
@@ -126,7 +79,7 @@ if __name__ == "__main__":
                     base_name + ".toml",
                 )
 
-            set_params = utils.parseTOML(set_param_file)
+            set_params = utils.parse_TOML(set_param_file)
             split_nb = set_params["split_nb"]
 
             # Read metric data
@@ -167,4 +120,4 @@ if __name__ == "__main__":
                 )
 
         metrics[phase] = np.array(metrics[phase])  # Convert to np array
-    plotData(metrics, args.metric)
+    plot_data(metrics, args.metric)

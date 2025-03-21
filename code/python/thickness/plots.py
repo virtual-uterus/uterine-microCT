@@ -1,27 +1,28 @@
 #!/usr/bin/env python3
 # -*- coding: utf-8 -*-
-#
-# plots.py: Functions used for plotting
-# Author: Mathias Roesler
-# Last modified: 06/23
+"""
+plots.py
+
+Plot functions for the thickness package
+Author: Mathias Roesler
+Date: 03/25
+"""
 
 import matplotlib.pyplot as plt
 import numpy as np
 
-LEFT = 0.22
-BOTTOM = 0.17
-RIGHT = 0.80
+from thickness.constants import LEFT, BOTTOM, RIGHT, COLOURS, Y_LABELS
 
 
-def plotProjectionPoints(img, centre, projection_points):
+def plot_projection_points(img, centre, projection_points):
     """Plots the centre point and projection points of an image
 
-    Arguments:
+    Args:
     img -- ndarray, image to display.
     centre -- ndarray, coordinates of the centre point (XY).
     projection_points -- ndarray, coordinates of the projection points (XY).
 
-    Return:
+    Returns:
 
     """
     fig, ax = plt.subplots(dpi=300)
@@ -35,17 +36,17 @@ def plotProjectionPoints(img, centre, projection_points):
     plt.show()
 
 
-def plotMuscleThickness(muscle_thickness, errors):
+def plot_muscle_thickness(muscle_thickness, errors):
     """Plots the muscle thickness of both horns on the same plot
 
     The number of points is normalised so that both sets are shown
     between 0 and 1
 
-    Arguments:
+    Args:
     muscle_thickness -- dict(ndarray), thickness of the horns.
     errors -- dict(ndarray), errors for the muscle thickness.
 
-    Return:
+    Returns:
 
     """
     fig, ax = plt.subplots(dpi=300)
@@ -82,18 +83,18 @@ def plotMuscleThickness(muscle_thickness, errors):
     plt.show()
 
 
-def plotAngularThickness(slice_thickness, projection=False, uCT_flag=True):
+def plot_angular_thickness(slice_thickness, projection=False, uCT_flag=True):
     """Plots the muscle thickness of one slice as a function of the
     angle theta
 
-    Arguments:
+    Args:
     slice_thickness -- dict(ndarray), array containing the angluar thickness
         of four slices for each horn.
     projection -- str, projection type of the plot, default value False.
     uCT_flag -- bool, True if the data is from microCT False if the data is
         from histology, default value True.
 
-    Return:
+    Returns:
 
     """
     fig, ax = plt.subplots(
@@ -169,7 +170,8 @@ def plotAngularThickness(slice_thickness, projection=False, uCT_flag=True):
             angle = np.deg2rad(25)
             plt.legend(
                 loc="lower left",
-                bbox_to_anchor=(0.5 + np.cos(angle) / 2, 0.5 + np.sin(angle) / 2),
+                bbox_to_anchor=(0.5 + np.cos(angle) / 2,
+                                0.5 + np.sin(angle) / 2),
             )
 
             plt.xticks(
@@ -210,5 +212,45 @@ def plotAngularThickness(slice_thickness, projection=False, uCT_flag=True):
             plt.ylabel("Muscle thickness (mm)")
             plt.xlabel(r"Angle $\theta$ (rad)")
 
+    plt.subplots_adjust(left=LEFT, right=RIGHT, bottom=BOTTOM)
+    plt.show()
+
+
+def plot_data(data, metric):
+    """Plots the selected data.
+
+    Args:
+    data -- dict(list(float))), dictionnary with estrus phases as keys and
+    lists of metric values as values
+
+    Returns:
+
+    """
+    fig, ax = plt.subplots(dpi=300)
+
+    for i, stage in enumerate(data.keys()):
+        nb_samples = len(data[stage])
+        np.random.seed(12)  # Reset random seed for all stages to be identical
+        jitter = np.random.uniform(-0.1, 0.1, nb_samples)
+
+        plt.errorbar(
+            (i + 1) * np.ones(nb_samples) + jitter,
+            data[stage][:, 0],
+            data[stage][:, 1],
+            c=COLOURS[stage],
+            marker=".",
+            linestyle="",
+            capsize=3.0,
+        )
+
+    # Reset x-axis ticks
+    plt.xticks(
+        ticks=[1, 2, 3, 4],
+        labels=[estrus.capitalize() for estrus in data.keys()],
+    )
+    plt.xlim([0.5, 4.5])
+    plt.ylim(bottom=0)
+
+    plt.ylabel(Y_LABELS[metric])
     plt.subplots_adjust(left=LEFT, right=RIGHT, bottom=BOTTOM)
     plt.show()

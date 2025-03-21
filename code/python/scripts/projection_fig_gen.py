@@ -1,9 +1,12 @@
 #!/usr/bin/env python3
 # -*- coding: utf-8 -*-
-#
-# projection_fig_gen.py: Script to generate the projection point figure
-# Author: Mathias Roesler
-# Last modified: 06/23
+"""
+projection_fig_gen.py
+
+Script to generate the projection point figure
+Author: Mathias Roesler
+Date: 06/23
+"""
 
 import argparse
 import os
@@ -12,9 +15,11 @@ import matplotlib.pyplot as plt
 import numpy as np
 import scipy.io
 
-import thickness_analysis.plots as plots
-import thickness_analysis.projection as projection
-import thickness_analysis.utils as utils
+import thickness.plots as plots
+import thickness.utils as utils
+import thickness.projection as projection
+
+from thickness.constants import BASE, HOME
 
 if __name__ == "__main__":
     parser = argparse.ArgumentParser(
@@ -22,7 +27,10 @@ if __name__ == "__main__":
     )
 
     parser.add_argument(
-        "dir_path", type=str, metavar="dir-path", help="path from BASE to the dataset"
+        "dir_path",
+        type=str,
+        metavar="dir-path",
+        help="path from BASE to the dataset",
     )
     parser.add_argument(
         "base_name", type=str, metavar="base-name", help="name of the dataset"
@@ -62,23 +70,32 @@ if __name__ == "__main__":
     # Parse input arguments
     args = parser.parse_args()
 
-    load_directory = os.path.join(utils.HOME, utils.BASE, args.dir_path, args.base_name)
+    load_directory = os.path.join(
+        HOME,
+        BASE,
+        args.dir_path,
+        args.base_name,
+    )
 
     if not args.not_d:
         # If the dataset is downsampled
         load_directory = os.path.join(load_directory, "downsampled")
-        param_file = os.path.join(load_directory, args.base_name + "_downsampled.toml")
+        param_file = os.path.join(
+            load_directory,
+            args.base_name + "_downsampled.toml",
+        )
 
     else:
         # If not use top-level parameter file
         param_file = os.path.join(load_directory, args.base_name + ".toml")
 
     # Load parameters
-    params = utils.parseTOML(param_file)
+    params = utils.parse_TOML(param_file)
 
     # Get the original image
     original_img_name = os.path.join(
-        load_directory, params["prefix"] + "_" + args.img_nb + "." + args.extension
+        load_directory,
+        params["prefix"] + "_" + args.img_nb + "." + args.extension,
     )
 
     # Add the muscle segmentation to the load directory
@@ -86,7 +103,8 @@ if __name__ == "__main__":
 
     # Get the original mask
     original_mask_name = os.path.join(
-        load_directory, params["prefix"] + "_" + args.img_nb + "." + args.extension
+        load_directory,
+        params["prefix"] + "_" + args.img_nb + "." + args.extension,
     )
 
     load_directory = os.path.join(load_directory, args.horn)
@@ -98,7 +116,8 @@ if __name__ == "__main__":
 
     # Image to use for projection
     rotated_mask_name = os.path.join(
-        load_directory, params["prefix"] + "_" + args.img_nb + "." + args.extension
+        load_directory,
+        params["prefix"] + "_" + args.img_nb + "." + args.extension,
     )
 
     # Load all the images
@@ -107,7 +126,7 @@ if __name__ == "__main__":
     rotated_mask = plt.imread(rotated_mask_name)
 
     # Rectify image number because index starts at 0
-    projection_points = projection.findProjectionPoints(
+    projection_points = projection.find_projection_points(
         rotated_mask, centreline[int(args.img_nb) - 1], args.points, args.horn
     )
 
@@ -118,6 +137,6 @@ if __name__ == "__main__":
     plt.imshow(original_mask, cmap="gray")
     fig, ax = plt.subplots(dpi=300)
     plt.imshow(rotated_mask, cmap="gray")
-    plots.plotProjectionPoints(
+    plots.plot_projection_points(
         rotated_mask, centreline[int(args.img_nb) - 1], projection_points
     )

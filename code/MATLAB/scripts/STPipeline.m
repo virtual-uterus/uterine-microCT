@@ -1,4 +1,4 @@
-function STPipeline(dir_path, base_name, mask, diffusion, structure_tensor, streamlines, downsampled)
+function STPipeline(dir_path, base_name, mask, diffusion, structure_tensor, streamlines, ortho, downsampled)
 %STPipeline Runs the structure tensor analysis pipeline.
 %
 %   base_dir is $HOME/Documents/phd/ and set in utils/baseDir()
@@ -14,13 +14,20 @@ function STPipeline(dir_path, base_name, mask, diffusion, structure_tensor, stre
 %    be run, default value is true.
 %    - streamlines, true if the ComputeStreamlines code should be run,
 %    default value is true.
+%     - ortho, true if an ortho file is generated which requires volumetric
+%     mesh centres.
+%    default value is false.
 %    - downsampled, true if the dataset has been downsampled, default value
 %    is true.
 %
 %   Return:
 %
-if nargin < 7
+if nargin < 8
     downsampled = true;
+end
+
+if nargin < 7
+    ortho = false;
 end
 
 if nargin < 6
@@ -170,7 +177,7 @@ if mask
 end
 
 % Clear everything except general parameters and input arguments
-clearvars -EXCEPT params base_dir src_dir extension file_template data_folder mask diffusion structure_tensor streamlines
+clearvars -EXCEPT params base_dir base_name src_dir extension file_template data_folder mask diffusion structure_tensor streamlines ortho
 
 
 if diffusion
@@ -315,7 +322,7 @@ if diffusion
 end
 
 % Clear everything except general parameters and input arguments
-clearvars -EXCEPT params base_dir src_dir extension file_template data_folder mask diffusion structure_tensor streamlines
+clearvars -EXCEPT params base_dir base_name src_dir extension file_template data_folder mask diffusion structure_tensor streamlines ortho
 
 if structure_tensor
     %%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
@@ -625,7 +632,7 @@ if structure_tensor
 end
 
 % Clear everything except general parameters and input arguments
-clearvars -EXCEPT params base_dir src_dir extension file_template data_folder mask diffusion structure_tensor streamlines
+clearvars -EXCEPT params base_dir base_name src_dir extension file_template data_folder mask diffusion structure_tensor streamlines ortho
 
 if streamlines
     %%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
@@ -718,54 +725,6 @@ if streamlines
     J = J(MaskGD);
     K = K(MaskGD);
 
-%     %%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
-%     %
-%     % Eigenanalysis
-%     %
-%     %%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
-%     fprintf(' ... finding ethings ... \n');
-%     FA= zeros(length(d2Xs),1);
-%     Fibre = zeros(length(d2Xs),3);
-%     angle = zeros(length(d2Xs), 1);
-% 
-%     for i=1:length(d2Xs)
-%         if ~mod(i,100000) fprintf(' entry: %d\n',i); end
-%         % local structure tensor
-%         ST = [d2Xs(i),dXYs(i),dXZs(i);dXYs(i),d2Ys(i),dYZs(i);dXZs(i),dYZs(i),d2Zs(i)];
-%         [V,D] = eig(ST); % evect/eval in largest to smallest
-%         [~,idx]=sort(diag(D));
-%         L1 = D(idx(3),idx(3));
-%         L2 = D(idx(2),idx(2));
-%         L3 = D(idx(1),idx(1));
-%         Fibre(i,:) = V(:,idx(1))';
-%         angle(i) = ComputeFibreAngle(Fibre(i, :), centreline, I(i), K(i)); % Store the orientation angle
-% 
-%         Trace = (L1+L2+L3)/3;
-%         Denom = sqrt(L1.^2+L2.^2+L3.^3+1e-6);
-%         FA(i) = sqrt(3/2)*(sqrt((L1-Trace).^2+(L2-Trace).^2+(L3-Trace).^2))./Denom;
-%     end
-% 
-%     angle(angle > 90) = 180 - angle(angle > 90); % Make sure angles are between 0 and 90 deg
-%     %%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
-%     %
-%     % Write exdata file
-%     %
-%     %%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
-%     fprintf(' ... Writing exdata file ... \n');
-% 
-%     % output file name
-%     exfname = OutputPath + '/data_points_level_' + Level;
-% 
-%     DataSLabels = {'FA', 'Angles'};
-%     DataVLabels = {'Fibre'};
-%     DataS = zeros(length(I),2);
-%     DataS(:,1) = FA;
-%     DataS(:, 2) = angle;
-%     DataV = cell(1);
-%     DataV{1} = Fibre;
-%     GName = sprintf('DataPoints');
-%     WriteGeneralExdataFile(I,J,K,(1:length(I))',DataS,DataV,exfname,GName,DataSLabels,DataVLabels);
-
     %%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
     %
     % Manipulate loaded data
@@ -834,4 +793,175 @@ if streamlines
     ExportStreamlines(Paths,[],exfname,groupname, region, 1,1);
 end
 
+% Clear everything except general parameters and input arguments
+clearvars -EXCEPT params base_dir base_name src_dir extension file_template data_folder mask diffusion structure_tensor streamlines ortho
+
+if ortho
+    %%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
+    %
+    % This script loads and processes structure tensor components at a
+    % specified resolution to determine the fibre, sheet, and normal vectors of
+    % the points in the volumetric mesh to generate an ortho file for Chaste.
+    %
+    % Updated by: Mathias Roesler, Feburary 2025.
+    %
+    %%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
+    %
+    % Set parameters and paths
+    %
+    %%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
+    Level = params.ST.streamlines.level; % frequency resolution of ST/Hessian data to use
+    %%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
+    %
+    % Data and path locations
+    %
+    %%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
+    %%
+    InputPath = src_dir + '/binary/';
+    DataPath = src_dir + '/data/';
+    MaskPath = src_dir + '/mask/';
+    %%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
+    %
+    % Load data
+    %
+    %%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
+    fprintf("... Level " + Level + " ...\n");
+    fprintf(' ... loading in data ... \n');
+
+    fid = fopen(sprintf('%sS%1d.bin',InputPath,Level),'r');
+    N = fread(fid,3,'uint16');
+    fprintf(' ... Dimension: [%d,%d,%d] ... \n',N);
+    d2Xs = double(fread(fid,prod(N),'double'));
+    dXYs = double(fread(fid,prod(N),'double'));
+    dXZs = double(fread(fid,prod(N),'double'));
+    d2Ys = double(fread(fid,prod(N),'double'));
+    dYZs = double(fread(fid,prod(N),'double'));
+    d2Zs = double(fread(fid,prod(N),'double'));
+    fclose(fid);    
+
+    fid = fopen(sprintf('%sIJK%1d.bin',InputPath,Level),'r');
+    N = fread(fid,3,'uint16');
+    fprintf(' ... Dimension: [%d,%d,%d] ... \n',N);
+    I = fread(fid,prod(N),'uint16');
+    J = fread(fid,prod(N),'uint16');
+    K = fread(fid,prod(N),'uint16');
+    fclose(fid);
+
+    % Read in mask data
+    mask_paths = getImagePaths(MaskPath, extension);
+    I3D = loadImageStack(mask_paths);
+    [Nj, Ni, Nk] = size(I3D);
+
+    try
+        % Try to read the centreline file if it exists
+        centreline = load(MaskPath +  "/centreline.mat");
+        centreline = centreline.centreline;
+    catch
+        centreline = [];
+    end
+
+    nb_used_slices = double(params.nb_used_slices);
+
+    %%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
+    %
+    % Manipulate loaded data
+    %
+    %%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
+    I3D = permute(I3D,[2,1,3]);
+    I3D = reshape(I3D,Ni*Nj*Nk,1);
+    GD = ((K-1)*Nj+J-1)*Ni+I;
+    MaskGD = find(I3D(GD));
+
+    % Only use data within masked tissue
+    d2Xs = d2Xs(MaskGD);
+    dXYs = dXYs(MaskGD);
+    dXZs = dXZs(MaskGD);
+    d2Ys = d2Ys(MaskGD);
+    dYZs = dYZs(MaskGD);
+    d2Zs = d2Zs(MaskGD);
+    I = I(MaskGD);
+    J = J(MaskGD);
+    K = K(MaskGD);
+
+    %%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
+    %
+    % Manipulate loaded data
+    %
+    %%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
+    % Set up interpolant
+    Fd2Xs = scatteredInterpolant(I,J,K,d2Xs);
+    FdXYs = scatteredInterpolant(I,J,K,dXYs);
+    FdXZs = scatteredInterpolant(I,J,K,dXZs);
+    Fd2Ys = scatteredInterpolant(I,J,K,d2Ys);
+    FdYZs = scatteredInterpolant(I,J,K,dYZs);
+    Fd2Zs = scatteredInterpolant(I,J,K,d2Zs);
+
+    %%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
+    %
+    % Calculate fibre, sheet, and normals at mesh points
+    %
+    %%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
+    % Load element and point coordinates
+    mesh_elem = readmatrix(DataPath + base_name + "_elements.csv");
+    nb_mesh_elem = length(mesh_elem);
+
+    mesh_points = readmatrix(DataPath + base_name + "_points.csv");
+    nb_mesh_points = length(mesh_points);
+
+    % Allocate fibres, sheets, and normals
+    fibres_elem = zeros(nb_mesh_points, 3);
+    sheets_elem = zeros(nb_mesh_points, 3);
+    normals_elem = zeros(nb_mesh_points, 3);
+
+    % Allocate fibres, sheets, and normals
+    fibres_points = zeros(nb_mesh_points, 3);
+    sheets_points = zeros(nb_mesh_points, 3);
+    normals_points = zeros(nb_mesh_points, 3);
+    angles_points = zeros(nb_mesh_points, 3);
+
+    disp("Computing fibres, sheets, and normals for elements")
+    for i=1:nb_mesh_elem
+        cur_point = abs(mesh_elem(i, :));
+        S = [Fd2Xs(cur_point(1),cur_point(2),cur_point(3)),...
+             FdXYs(cur_point(1),cur_point(2),cur_point(3)),...
+             FdXZs(cur_point(1),cur_point(2),cur_point(3));...
+             FdXYs(cur_point(1),cur_point(2),cur_point(3)),...
+             Fd2Ys(cur_point(1),cur_point(2),cur_point(3)),...
+             FdYZs(cur_point(1),cur_point(2),cur_point(3));...
+             FdXZs(cur_point(1),cur_point(2),cur_point(3)),...
+             FdYZs(cur_point(1),cur_point(2),cur_point(3)),...
+             Fd2Zs(cur_point(1),cur_point(2),cur_point(3))];
+        [V,D] = eig(S); % evect/eval in largest to smallest
+        [~,idx]=sort(diag(D));
+        normals_elem(i, :) = V(:,idx(3))';
+        sheets_elem(i, :) = V(:,idx(2))';
+        fibres_elem(i, :) = V(:,idx(1))';
+    end
+
+    disp("Computing fibres, sheets, and normals for points")
+    for i=1:nb_mesh_points
+        cur_point = abs(mesh_points(i, :));
+        S = [Fd2Xs(cur_point(1),cur_point(2),cur_point(3)),...
+             FdXYs(cur_point(1),cur_point(2),cur_point(3)),...
+             FdXZs(cur_point(1),cur_point(2),cur_point(3));...
+             FdXYs(cur_point(1),cur_point(2),cur_point(3)),...
+             Fd2Ys(cur_point(1),cur_point(2),cur_point(3)),...
+             FdYZs(cur_point(1),cur_point(2),cur_point(3));...
+             FdXZs(cur_point(1),cur_point(2),cur_point(3)),...
+             FdYZs(cur_point(1),cur_point(2),cur_point(3)),...
+             Fd2Zs(cur_point(1),cur_point(2),cur_point(3))];
+        [V,D] = eig(S); % evect/eval in largest to smallest
+        [~,idx]=sort(diag(D));
+        normals_points(i, :) = V(:,idx(3))';
+        sheets_points(i, :) = V(:,idx(2))';
+        fibres_points(i, :) = V(:,idx(1))';
+        angles_points(k, :) = ComputeFibreAngle(V(:, idx(1))', centreline, cur_point(1), cur_point(3), nb_used_slices);
+    end
+
+
+    % Write the ortho file
+    disp("Writing ortho files")
+    WriteOrthoFile(DataPath + base_name + "_elements.ortho", fibres_elem, sheets_elem, normals_elem)
+    WriteOrthoFile(DataPath + base_name + "_points.ortho", fibres_points, sheets_points, normals_points, angles_points)
+end
 end

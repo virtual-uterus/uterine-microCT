@@ -81,3 +81,5 @@ ylim = [175, 788]
 	DI=3
 	DK=3
 
+[ST.ortho]
+  level=2

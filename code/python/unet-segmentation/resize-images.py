@@ -1,9 +1,12 @@
 #!/usr/bin/env python3
 # -*- coding: utf-8 -*-
-#
-# resizeImages.py: Script to resize images to for unet model
-# Author: Mathias Roesler
-# Last modified: 04/24
+"""
+resizeImages.py
+
+Script to resize images to for unet model
+Author: Mathias Roesler
+Date: 04/24
+"""
 
 import argparse
 import glob
@@ -12,9 +15,10 @@ import os
 
 import numpy as np
 import skimage.io as skio
-import thickness_analysis.utils as utils
+import thickness.utils as utils
 
 from skimage.util import img_as_ubyte
+from thickness.constants import BASE, HOME
 
 if __name__ == "__main__":
     parser = argparse.ArgumentParser(
@@ -22,13 +26,19 @@ if __name__ == "__main__":
     )
 
     parser.add_argument(
-        "dir_path", type=str, metavar="dir-path", help="path from BASE to the dataset"
+        "dir_path",
+        type=str,
+        metavar="dir-path",
+        help="path from BASE to the dataset",
     )
     parser.add_argument(
         "base_name", type=str, metavar="base-name", help="name of the dataset"
     )
     parser.add_argument(
-        "new_size", type=int, metavar="new-size", help="size of the new training image"
+        "new_size",
+        type=int,
+        metavar="new-size",
+        help="size of the new training image",
     )
     parser.add_argument(
         "--not-d",
@@ -48,7 +58,7 @@ if __name__ == "__main__":
     args = parser.parse_args()
 
     new_size = args.new_size
-    load_directory = os.path.join(utils.HOME, utils.BASE, args.dir_path, args.base_name)
+    load_directory = os.path.join(HOME, BASE, args.dir_path, args.base_name)
     if not args.not_d:
         # If the dataset is downsampled
         load_directory = os.path.join(load_directory, "downsampled")
@@ -58,7 +68,8 @@ if __name__ == "__main__":
     if not os.path.isdir(save_directory):
         os.mkdir(save_directory)
 
-    img_list = sorted(glob.glob("*.{}".format(args.extension), root_dir=load_directory))
+    img_list = sorted(
+        glob.glob("*.{}".format(args.extension), root_dir=load_directory))
 
     for img_name in img_list:
         path = os.path.join(load_directory, img_name)
@@ -71,8 +82,8 @@ if __name__ == "__main__":
 
         # Getting padding values
         height, width = img.shape
-        pad_h = utils.findPadding(height, new_size)
-        pad_w = utils.findPadding(width, new_size)
+        pad_h = utils.find_padding(height, new_size)
+        pad_w = utils.find_padding(width, new_size)
 
         # Pad image
         padded_img = np.pad(img, ((0, pad_h), (0, pad_w)))
@@ -81,7 +92,7 @@ if __name__ == "__main__":
             for j in range((width + pad_w) // new_size):
                 # Get each image block
                 img_block = padded_img[
-                    i * new_size : (i + 1) * new_size, j * new_size : (j + 1) * new_size
+                    i * new_size: (i + 1) * new_size, j * new_size: (j + 1) * new_size
                 ]
 
                 # Save the image block

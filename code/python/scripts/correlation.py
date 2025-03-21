@@ -1,9 +1,12 @@
 #!/usr/bin/env python3
 # -*- coding: utf-8 -*-
-#
-# correlation.py: Script to estimate correlation between histology and uCT
-# Author: Mathias Roesler
-# Last modified: 06/23
+"""
+correlation.py
+
+Script to estimate correlation between histology and uCT
+Author: Mathias Roesler
+Date: 06/23
+"""
 
 import argparse
 import os
@@ -12,7 +15,7 @@ import sys
 import numpy as np
 from scipy import stats
 
-import thickness_analysis.utils as utils
+from thickness.constants import BASE, HOME
 
 if __name__ == "__main__":
     parser = argparse.ArgumentParser(
@@ -21,7 +24,10 @@ if __name__ == "__main__":
     )
 
     parser.add_argument(
-        "uCT_path", type=str, metavar="uCT-path", help="path from BASE to the uCT data"
+        "uCT_path",
+        type=str,
+        metavar="uCT-path",
+        help="path from BASE to the uCT data",
     )
     parser.add_argument(
         "histo_path",
@@ -49,10 +55,9 @@ if __name__ == "__main__":
     args = parser.parse_args()
 
     # Set up variables
-    uCT_directory = os.path.join(
-        utils.HOME, utils.BASE, args.uCT_path, args.base_name)
+    uCT_directory = os.path.join(HOME, BASE, args.uCT_path, args.base_name)
     histo_directory = os.path.join(
-        utils.HOME, utils.BASE, args.histo_path, args.base_name + "_histology"
+        HOME, BASE, args.histo_path, args.base_name + "_histology"
     )
     regions = ["cervix", "cervical", "central", "ovarian"]
     horn = args.horn
@@ -66,12 +71,14 @@ if __name__ == "__main__":
     histo_directory = os.path.join(histo_directory, "muscle_segmentation")
 
     # Read data
-    uCT_data = np.load(uCT_directory + "/angular_thickness.pkl", allow_pickle=True)[
-        horn
-    ]
-    histo_data = np.load(histo_directory + "/angular_thickness.pkl", allow_pickle=True)[
-        horn
-    ]
+    uCT_data = np.load(
+        uCT_directory + "/angular_thickness.pkl",
+        allow_pickle=True,
+    )[horn]
+    histo_data = np.load(
+        histo_directory + "/angular_thickness.pkl",
+        allow_pickle=True,
+    )[horn]
 
     # Set nan values to 0
     uCT_nan_ind = np.where(np.isnan(uCT_data))

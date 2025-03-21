@@ -1,9 +1,12 @@
 #!/usr/bin/env python3
 # -*- coding: utf-8 -*-
-#
-# utils.py: Utility functions for the quantative analysis
-# Author: Mathias Roesler
-# Last modified: 02/23
+"""
+utils.py
+
+Utility functions for the thickness package
+Author: Mathias Roesler
+Date: 02/23
+"""
 
 import os
 import sys
@@ -12,24 +15,22 @@ import tomli
 import numpy as np
 import skimage.io as skio
 
-HOME = os.path.expanduser("~")
-BASE = "Documents/phd"
 
-
-def loadImageStack(dir_path, extension="png"):
+def load_image_stack(dir_path, extension="png"):
     """Loads the images found in the directory
 
-    Arguments:
+    Args:
     dir_path -- str, path to the folder containing the images.
     extension -- str, image extension, default value png.
 
-    Return:
+    Returns:
     img_stack -- ndarray, image stack.
 
     """
     if not os.path.isdir(dir_path):
         sys.stderr.write(
-            "Error: the directory {} does not exists.\n".format(dir_path))
+            "Error: the directory {} does not exists.\n".format(dir_path),
+        )
         exit()
 
     img_list = sorted(glob.glob("*.{}".format(extension), root_dir=dir_path))
@@ -41,7 +42,9 @@ def loadImageStack(dir_path, extension="png"):
 
     # Pre-allocate and read images
     img_stack = np.zeros(
-        [stack_size, nb_x_pixels, nb_y_pixels], dtype=np.uint8)
+        [stack_size, nb_x_pixels, nb_y_pixels],
+        dtype=np.uint8,
+    )
 
     for i, img_name in enumerate(img_list):
         path = os.path.join(dir_path, img_name)
@@ -55,7 +58,7 @@ def loadImageStack(dir_path, extension="png"):
     return img_stack
 
 
-def saveImageStack(
+def save_image_stack(
     img_stack,
     save_path,
     img_prefix,
@@ -64,7 +67,7 @@ def saveImageStack(
 ):
     """Saves the images in the stack to the save directory
 
-    Arguments:
+    Args:
     img_stack -- ndarray, stack of images to save.
     save_path -- str, path of the directory in which to save images.
     img_prefix -- str, prefix for the images in the stack.
@@ -72,12 +75,13 @@ def saveImageStack(
             default value 0.
     extension -- str, image extension, default value png.
 
-    Return:
+    Returns:
 
     """
     if not os.path.isdir(save_path):
         sys.stderr.write(
-            "Error: the directory {} does not exists.\n".format(save_path))
+            "Error: the directory {} does not exists.\n".format(save_path),
+        )
         exit()
 
     i = 0
@@ -91,20 +95,23 @@ def saveImageStack(
             if not img.dtype == np.dtype(np.uint8):
                 img = img.astype(np.uint8)
 
-            skio.imsave("{}.{}".format(img_path, extension),
-                        img, check_contrast=False)
+            skio.imsave(
+                "{}.{}".format(img_path, extension),
+                img,
+                check_contrast=False,
+            )
 
             i += 1
 
 
-def getVector(p1, p2):
+def get_vector(p1, p2):
     """Finds the vector given two points
 
-    Arguments:
+    Args:
     p1 -- np.array, first point.
     p2 -- np.array, second point.
 
-    Return:
+    Returns:
     vec -- np.array, normalised vector between p1 and p2.
 
     """
@@ -121,14 +128,14 @@ def getVector(p1, p2):
     return vec
 
 
-def getAngle(v1, v2):
+def get_angle(v1, v2):
     """Finds the angle given two vectors
 
-    Arguments:
+    Args:
     v1 -- np.array, first vector.
     v2 -- np.array, second vector.
 
-    Return:
+    Returns:
     angle -- float, angle between v1 and v2 in rad.
 
     """
@@ -140,18 +147,19 @@ def getAngle(v1, v2):
         exit()
 
     angle = np.arccos(
-        np.dot(v1, v2) / (np.linalg.norm(v1) * np.linalg.norm(v2)))
+        np.dot(v1, v2) / (np.linalg.norm(v1) * np.linalg.norm(v2)),
+    )
 
     return angle
 
 
-def parseTOML(toml_file):
+def parse_TOML(toml_file):
     """Parse a toml file
 
-    Arguments:
+    Args:
     toml_file -- str, path to the toml file.
 
-    Return:
+    Returns:
     data -- dict, dictonary containing the parameters.
 
     """
@@ -161,14 +169,14 @@ def parseTOML(toml_file):
     return data
 
 
-def findPadding(cur_size, new_size):
+def find_padding(cur_size, new_size):
     """Finds the padding size to add to be able to split an image
 
-    Arguments:
+    Args:
     cur_size -- int, current size.
     new_size -- int, desired size.
 
-    Return:
+    Returns:
     pad -- int, padding value to make the cur_size divisible by new_size.
 
     """
@@ -178,14 +186,14 @@ def findPadding(cur_size, new_size):
         return 0
 
 
-def movingAverage(array, window_size):
+def moving_average(array, window_size):
     """Computes the moving average of an array
 
-    Arguments:
+    Args:
     array -- ndarray, array over which to compute the average.
     window_size -- int, size of the window over which to compute.
 
-    Return:
+    Returns:
     averaged_array -- ndarray, values of the moving average.
 
     """
@@ -210,14 +218,14 @@ def movingAverage(array, window_size):
     return averaged_array
 
 
-def circularAverage(array, window_size):
+def circular_average(array, window_size):
     """Computes the average for a circular array
 
-    Arguments:
+    Args:
     array -- ndarray, array over which to compute the standard deviation.
     window_size -- int, size of the window over which to compute.
 
-    Return:
+    Returns:
     mean_array -- ndarray, values of the moving standard deviation.
 
     """
@@ -248,14 +256,14 @@ def circularAverage(array, window_size):
     return mean_array
 
 
-def movingStd(array, window_size):
+def moving_std(array, window_size):
     """Computes the standard deviation for each window
 
-    Arguments:
+    Args:
     array -- ndarray, array over which to compute the standard deviation.
     window_size -- int, size of the window over which to compute.
 
-    Return:
+    Returns:
     std_array -- ndarray, values of the moving standard deviation.
 
     """
@@ -276,17 +284,17 @@ def movingStd(array, window_size):
     return std_array
 
 
-def writeExElemVol(file_path, elements, thickness=True):
+def write_exelem_vol(file_path, elements, thickness=True):
     """Writes out the data from a volumetric mesh to a exnode file
 
-    Arguments:
+    Args:
     file_path -- str, path to the file to save to.
     elements -- ndarray, list of nodes associated with each tetrahedra,
             size = Nx4.
     thickness -- bool, flag used if thickness has been provided to the
             exnode file, default True.
 
-    Return:
+    Returns:
 
     """
     try:
@@ -310,10 +318,11 @@ def writeExElemVol(file_path, elements, thickness=True):
             # If no thickness is provided there is only one field
             f.write("#Fields=1\n")
 
-        f.write("1) coordinates, coordinate, rectangular cartesian, " "#Components=3\n")
         f.write(
-            " x. l.simplex(2;3)*l.simplex*l.simplex, no modify, "
-            "standard node based.\n"
+            "1) coordinates, coordinate, rectangular cartesian, #Components=3\n",
+        )
+        f.write(
+            " x. l.simplex(2;3)*l.simplex*l.simplex, no modify, standard node based.\n"
         )
         f.write("  #Nodes=4\n")
         f.write("  1. #Values=1\n")
@@ -329,8 +338,7 @@ def writeExElemVol(file_path, elements, thickness=True):
         f.write("	Value indices: 1\n")
         f.write("	Scale factor indices: 0\n")
         f.write(
-            " y. l.simplex(2;3)*l.simplex*l.simplex, no modify, "
-            "standard node based.\n"
+            " y. l.simplex(2;3)*l.simplex*l.simplex, no modify, standard node based.\n"
         )
         f.write("  #Nodes=4\n")
         f.write("  1. #Values=1\n")
@@ -346,8 +354,7 @@ def writeExElemVol(file_path, elements, thickness=True):
         f.write("	Value indices: 1\n")
         f.write("	Scale factor indices: 0\n")
         f.write(
-            " z. l.simplex(2;3)*l.simplex*l.simplex, no modify, "
-            "standard node based.\n"
+            " z. l.simplex(2;3)*l.simplex*l.simplex, no modify, standard node based.\n"
         )
         f.write("  #Nodes=4\n")
         f.write("  1. #Values=1\n")
@@ -364,7 +371,9 @@ def writeExElemVol(file_path, elements, thickness=True):
         f.write("	Scale factor indices: 0\n")
 
         if thickness:
-            f.write("2) thickness, field, rectangular cartesian, " "#Components=1\n")
+            f.write(
+                "2) thickness, field, rectangular cartesian, #Components=1\n",
+            )
             f.write(" thickness. constant, no modify, standard node based.\n")
             f.write("  #Nodes=1\n")
             f.write("  1. #Values=1\n")
@@ -381,17 +390,17 @@ def writeExElemVol(file_path, elements, thickness=True):
             )
 
 
-def writeExElemSurf(file_path, elements, thickness=True):
+def write_exelem_surf(file_path, elements, thickness=True):
     """Writes out the data from a surface mesh to a exnode file
 
-    Arguments:
+    Args:
     file_path -- str, path to the file to save to.
     elements -- ndarray, list of nodes associated with each triangle,
             size = Nx3.
     thickness -- bool, flag used if thickness has been provided to the
             exnode file, default True.
 
-    Return:
+    Returns:
 
     """
     try:
@@ -415,8 +424,12 @@ def writeExElemSurf(file_path, elements, thickness=True):
             # If no thickness is provided there is only one field
             f.write("#Fields=1\n")
 
-        f.write("1) coordinates, coordinate, rectangular cartesian, " "#Components=3\n")
-        f.write(" x. l.simplex(2)*l.simplex, no modify, standard node based.\n")
+        f.write(
+            "1) coordinates, coordinate, rectangular cartesian, #Components=3\n",
+        )
+        f.write(
+            " x. l.simplex(2)*l.simplex, no modify, standard node based.\n",
+        )
         f.write("  #Nodes=3\n")
         f.write("  1. #Values=1\n")
         f.write("	Value indices: 1\n")
@@ -427,7 +440,9 @@ def writeExElemSurf(file_path, elements, thickness=True):
         f.write("  3. #Values=1\n")
         f.write("	Value indices: 1\n")
         f.write("	Scale factor indices: 0\n")
-        f.write(" y. l.simplex(2)*l.simplex, no modify, standard node based.\n")
+        f.write(
+            " y. l.simplex(2)*l.simplex, no modify, standard node based.\n",
+        )
         f.write("  #Nodes=3\n")
         f.write("  1. #Values=1\n")
         f.write("	Value indices: 1\n")
@@ -438,7 +453,9 @@ def writeExElemSurf(file_path, elements, thickness=True):
         f.write("  3. #Values=1\n")
         f.write("	Value indices: 1\n")
         f.write("	Scale factor indices: 0\n")
-        f.write(" z. l.simplex(2)*l.simplex, no modify, standard node based.\n")
+        f.write(
+            " z. l.simplex(2)*l.simplex, no modify, standard node based.\n",
+        )
         f.write("  #Nodes=3\n")
         f.write("  1. #Values=1\n")
         f.write("	Value indices: 1\n")
@@ -451,7 +468,9 @@ def writeExElemSurf(file_path, elements, thickness=True):
         f.write("	Scale factor indices: 0\n")
 
         if thickness:
-            f.write("2) thickness, field, rectangular cartesian, #Components=1\n")
+            f.write(
+                "2) thickness, field, rectangular cartesian, #Components=1\n",
+            )
             f.write(" thickness. constant, no modify, standard node based.\n")
             f.write("  #Nodes=1\n")
             f.write("  1. #Values=1\n")
@@ -461,22 +480,21 @@ def writeExElemSurf(file_path, elements, thickness=True):
         for i, nodes in enumerate(elements):
             f.write("Element: {} 0 0\n".format(i + 1))
             f.write(" Nodes: \n")
-            f.write("  {} {} {}\n".format(
-                nodes[0] + 1, nodes[1] + 1, nodes[2] + 1))
+            f.write(f"  {nodes[0] + 1} {nodes[1] + 1} {nodes[2] + 1}\n")
 
 
-def writeExNode(file_path, nodes, thickness=None):
+def write_exnode(file_path, nodes, thickness=None):
     """Writes out the nodes from a mesh to a exnode file,
-            and adds the thickness field if provided
+    and adds the thickness field if provided
 
-    Arguments:
+    Args:
     file_path -- str, path to the file to save to.
     nodes -- ndarray, list of coordinates for each node.
             size = Nx3
     thickness -- ndarray, list of thickness value for each node.
             size = Nx1, default value None.
 
-    Return:
+    Returns:
 
     """
     try:
@@ -494,8 +512,7 @@ def writeExNode(file_path, nodes, thickness=None):
 
         except AssertionError:
             sys.stderr.write(
-                "Error: nodes and thickness should have the same "
-                "number of elements\n"
+                "Error: nodes and thickness should have the same number of elements\n"
             )
             exit()
 
@@ -511,13 +528,17 @@ def writeExNode(file_path, nodes, thickness=None):
             # If no thickness is provided there is only one field
             f.write("#Fields=1\n")
 
-        f.write("1) coordinates, coordinate, rectangular cartesian, " "#Components=3\n")
+        f.write(
+            "1) coordinates, coordinate, rectangular cartesian, #Components=3\n",
+        )
         f.write(" x. Value index=1, #Derivatives=0\n")
         f.write(" y. Value index=2, #Derivatives=0\n")
         f.write(" z. Value index=3, #Derivatives=0\n")
 
         if type(thickness) is not type(None):
-            f.write("2) thickness, field, rectangular cartesian, #Components=1\n")
+            f.write(
+                "2) thickness, field, rectangular cartesian, #Components=1\n",
+            )
             f.write(" thickness. Value index=4, #Derivatives=0\n")
 
         for i in range(len(nodes)):

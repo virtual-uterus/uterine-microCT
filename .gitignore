@@ -6,8 +6,8 @@ figures/
 code/python/scripts/*.swp
 code/python/scripts/__pycache__
 code/python/scripts/*.log
-code/python/thickness_analysis/*.swp
-code/python/thickness_analysis/__pycache__
+code/python/thickness/*.swp
+code/python/thickness/__pycache__
 code/python/tests/*.swp
 code/python/tests/__pycache__
 code/python/utils/*.swp
@@ -22,7 +22,7 @@ code/MATLAB/m_scripts/*.asv
 code/MATLAB/segmentation/*.asv
 code/MATLAB/utils/*.asv
 code/MATLAB/structure_tensor/*.asv
-code/MATLAB/thickness_analysis/*.asv
+code/MATLAB/thickness/*.asv
 
 # Ignore backup files
 *.backup

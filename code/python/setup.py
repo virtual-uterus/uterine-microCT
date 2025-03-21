@@ -11,7 +11,7 @@ def read_requirements():
 
 setup(
     name="thickness",
-    version="0.1.0",
+    version="0.1.2",
     description="A Python package to compute the thickness of a uterine"
     "micro-computed tomography dataset",
     long_description_content_type="text/markdown",  # Use Markdown for README
