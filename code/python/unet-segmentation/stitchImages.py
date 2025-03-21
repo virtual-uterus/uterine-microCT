@@ -1,9 +1,12 @@
 #!/usr/bin/env python3
 # -*- coding: utf-8 -*-
-#
-# stitchImages.py: Script to stitch up images divided into blocks
-# Author: Mathias Roesler
-# Last modified: 04/24
+"""
+stitchImages.py
+
+Script to stitch up images divided into blocks
+Author: Mathias Roesler
+Date: 04/24
+"""
 
 import argparse
 import glob
@@ -12,9 +15,10 @@ import os
 
 import numpy as np
 import skimage.io as skio
-import thickness_analysis.utils as utils
+import thickness.utils as utils
 
 from skimage.util import img_as_ubyte
+from thickness.constants import BASE, HOME
 
 if __name__ == "__main__":
     parser = argparse.ArgumentParser(
@@ -22,7 +26,10 @@ if __name__ == "__main__":
     )
 
     parser.add_argument(
-        "dir_path", type=str, metavar="dir-path", help="path from BASE to the dataset"
+        "dir_path",
+        type=str,
+        metavar="dir-path",
+        help="path from BASE to the dataset",
     )
     parser.add_argument(
         "base_name", type=str, metavar="base-name", help="name of the dataset"
@@ -44,8 +51,7 @@ if __name__ == "__main__":
     # Parse input arguments
     args = parser.parse_args()
 
-    main_directory = os.path.join(
-        utils.HOME, utils.BASE, args.dir_path, args.base_name)
+    main_directory = os.path.join(HOME, BASE, args.dir_path, args.base_name)
 
     if not args.not_d:
         # If the dataset is downsampled
@@ -65,7 +71,7 @@ if __name__ == "__main__":
         os.mkdir(save_directory)
 
     # Get necessary parameters
-    params = utils.parseTOML(param_file)
+    params = utils.parse_TOML(param_file)
     original_width = params["nb_pixel_y"]
     original_height = params["nb_pixel_x"]
     image_name = params["prefix"]
@@ -84,8 +90,8 @@ if __name__ == "__main__":
     height, width = img.shape
 
     # Get the padding values that were used for splitting
-    pad_w = utils.findPadding(original_width, width)
-    pad_h = utils.findPadding(original_height, height)
+    pad_w = utils.find_padding(original_width, width)
+    pad_h = utils.find_padding(original_height, height)
 
     # Calculate how many height and width blocks there are
     nb_h = (original_height + pad_h) // height

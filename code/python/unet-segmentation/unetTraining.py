@@ -1,16 +1,20 @@
 #!/usr/bin/env python3
 # -*- coding: utf-8 -*-
-#
-# unetTraining.py: Script to train the unet model
-# Author: Mathias Roesler
-# Last modified: 04/24
+"""
+unetTraining.py
+
+Script to train the unet model
+Author: Mathias Roesler
+Date: 04/24
+"""
 
 import argparse
 import os
 
 import numpy as np
-import thickness_analysis.utils as utils
+import thickness.utils as utils
 
+from thickness.constants import BASE, HOME
 from sklearn.model_selection import train_test_split
 
 from keras_unet.models import custom_unet
@@ -22,7 +26,10 @@ if __name__ == "__main__":
     parser = argparse.ArgumentParser(description="Trains the unet model")
 
     parser.add_argument(
-        "dir_path", type=str, metavar="dir-path", help="path from BASE to the dataset"
+        "dir_path",
+        type=str,
+        metavar="dir-path",
+        help="path from BASE to the dataset",
     )
     parser.add_argument(
         "base_name", type=str, metavar="base-name", help="name of the dataset"
@@ -35,11 +42,10 @@ if __name__ == "__main__":
     # Parse input arguments
     args = parser.parse_args()
 
-    load_directory = os.path.join(
-        utils.HOME, utils.BASE, args.dir_path, args.base_name)
+    load_directory = os.path.join(HOME, BASE, args.dir_path, args.base_name)
 
-    imgs = utils.loadImageStack(load_directory + "/imgs")
-    masks = utils.loadImageStack(load_directory + "/masks")
+    imgs = utils.load_image_stack(load_directory + "/imgs")
+    masks = utils.load_image_stack(load_directory + "/masks")
 
     # Convert to floats between 0 and 1
     imgs = np.asarray(imgs, dtype=np.float32) / imgs.max()
@@ -76,7 +82,9 @@ if __name__ == "__main__":
     )
 
     model.compile(
-        optimizer=Adam(), loss="binary_crossentropy", metrics=[iou, iou_thresholded]
+        optimizer=Adam(),
+        loss="binary_crossentropy",
+        metrics=[iou, iou_thresholded],
     )
 
     history = model.fit(

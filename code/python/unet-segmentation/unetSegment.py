@@ -1,20 +1,24 @@
 #!/usr/bin/env python3
 # -*- coding: utf-8 -*-
-#
-# unetSegment.py: Script to segment microCT using unet model
-# Author: Mathias Roesler
-# Last modified: 05/24
+"""
+unetSegment.py
+
+Script to segment microCT using unet model
+Author: Mathias Roesler
+Date: 05/24
+"""
 
 import os
 import glob
 import argparse
 
 import numpy as np
-import thickness_analysis.utils as utils
+import thickness.utils as utils
 import skimage.io as skio
 
 from skimage.filters import threshold_otsu
 from skimage.util import img_as_ubyte
+from thickness.constants import BASE, HOME
 
 if __name__ == "__main__":
     parser = argparse.ArgumentParser(
@@ -52,8 +56,7 @@ if __name__ == "__main__":
     # Import tensorflow only after arguments to avoid loading on help
     import tensorflow as tf
 
-    main_directory = os.path.join(
-        utils.HOME, utils.BASE, args.dir_path, args.base_name)
+    main_directory = os.path.join(HOME, BASE, args.dir_path, args.base_name)
 
     if not args.not_d:
         # If the dataset is downsampled
@@ -66,7 +69,7 @@ if __name__ == "__main__":
     if not os.path.isdir(save_directory):
         os.mkdir(save_directory)
 
-    imgs = utils.loadImageStack(load_directory)
+    imgs = utils.load_image_stack(load_directory)
     img_names = sorted(
         glob.glob("*.{}".format(args.extension), root_dir=load_directory)
     )
