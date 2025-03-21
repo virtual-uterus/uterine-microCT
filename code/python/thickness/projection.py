@@ -132,7 +132,7 @@ def exclude_central_points(img, centre_points, projection_points, horn):
     coords = np.where(hline[:-1] != hline[1:])[0]
 
     # Normal vector for the horizontal line
-    normal = utils.getVector(
+    normal = utils.get_vector(
         np.array([centre_points[5], centre_points[0]]),
         np.array([centre_points[1], centre_points[4]]),
     )
@@ -164,11 +164,11 @@ def exclude_central_points(img, centre_points, projection_points, horn):
                 normal,
             )
 
-    first_vline_vector = utils.getVector(
+    first_vline_vector = utils.get_vector(
         np.array([first_vline_x[0], first_vline_y[0]]),
         np.array([first_vline_x[-1], first_vline_y[-1]]),
     )
-    second_vline_vector = utils.getVector(
+    second_vline_vector = utils.get_vector(
         np.array([second_vline_x[0], second_vline_y[0]]),
         np.array([second_vline_x[-1], second_vline_y[-1]]),
     )
@@ -176,25 +176,25 @@ def exclude_central_points(img, centre_points, projection_points, horn):
     unit_vector = np.array([1, 0])  # Unit vector x direction
 
     # Get angles between x direction and exclusion lines
-    first_angle = utils.getAngle(first_vline_vector, unit_vector)
-    second_angle = utils.getAngle(second_vline_vector, unit_vector)
+    first_angle = utils.get_angle(first_vline_vector, unit_vector)
+    second_angle = utils.get_angle(second_vline_vector, unit_vector)
 
     # Create an array to store point indices
     ind_to_del = np.array([], dtype=int)
 
     for i, point in enumerate(projection_points):
         # Check if points are in exclusion zone
-        vec1 = utils.getVector(
+        vec1 = utils.get_vector(
             np.array([first_vline_x[0], first_vline_y[0]]),
             point,
         )
-        vec2 = utils.getVector(
+        vec2 = utils.get_vector(
             np.array([second_vline_x[0], second_vline_y[0]]),
             point,
         )
 
-        angle1 = utils.getAngle(vec1, unit_vector)
-        angle2 = utils.getAngle(vec2, unit_vector)
+        angle1 = utils.get_angle(vec1, unit_vector)
+        angle2 = utils.get_angle(vec2, unit_vector)
 
         if angle1 <= first_angle and angle2 >= second_angle:
             # If true add index to list marked for deletion
@@ -243,7 +243,7 @@ def find_projection_points(img, centre_points, nb_points, horn):
     if (centre_points[2:4] != np.array([0, 0])).all():
         # The horns are not clearly separated and three points are given
         # Create a vector between the left and right points
-        normal = utils.getVector(
+        normal = utils.get_vector(
             np.array([centre_points[5], centre_points[0]]),
             np.array([centre_points[1], centre_points[4]]),
         )
