@@ -230,7 +230,7 @@ centreline.mat file created with the __uCTCentreline.m__ script. If no centrelin
 are assumed to be aligned with the z-axis and the fibres are annotated based on the angle relative to the
 vector [0 0 1].
 
-The __STPipeline.m__ script will generate .exnode and .exelem files that can be visualised in cmgui. Additionally, ortho files can be generated if the ortho flag is set to true. The MESH_elements.ortho is used for simulations in Chaste, the MESH_points.ortho is used for visualisation in Paraview (see the [symmesh](https://github.com/virtual-uterus/symmesh) repository for more information). The
+The __STPipeline.m__ script will generate .exnode and .exelem files that can be visualised in cmgui. Additionally, ortho files can be generated if the ortho flag is set to true. To generate ortho file, the element and point lists must be generated beforehand for the structure tensors to evaluate the mesh at the correct locations. Both files can be generated with the __fibre-generation.py__ script from the [symmesh](https://github.com/virtual-uterus/symmesh) repository. The MESH_elements.ortho is used for simulations in Chaste, the MESH_points.ortho is used for visualisation in Paraview (see the [symmesh](https://github.com/virtual-uterus/symmesh) repository for more information). The
 parameters for the script can be set in the configuration file.
 
 This code was written by Mark Trew.
