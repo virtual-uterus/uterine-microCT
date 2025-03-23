@@ -1,6 +1,8 @@
 # Ignore data folder
-data/
 figures/
+data/*
+!data/tests
+!data/tests/**
 
 # Ignore python swp and cache
 code/python/scripts/*.swp
