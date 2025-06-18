@@ -133,7 +133,7 @@ For example, the muscle segmentation masks will be saved in the muscle_segmentat
 tissue segmentation masks will be saved in the tissue_segmentation folder. The parameters for the segmentation script are set in the configuration file.
 <a id="unet-segmentation"></a>
 #### UNet segmentation
-The images can be segmented using a UNet deep neural network as well. Information about the model as well as the containers and training weights are freely available [here](https://auckland.figshare.com/account/projects/167804/articles/26499451).
+The images can be segmented using a UNet deep neural network as well. Information about the model as well as the containers and training weights are freely available [here](https://auckland.figshare.com/articles/software/UNet_segmentation_model/26499451).
 The model uses the code from GitHub user Karol Żak. The code is available under the MIT license and can be found [here](https://github.com/karolzak/keras-unet/tree/master).
 
 **NOTE:** The scripts for running inference and training are placed in the unet-segmentation folder.
