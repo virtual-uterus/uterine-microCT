@@ -14,9 +14,10 @@ HOME = os.path.expanduser("~")
 BASE = "Documents/phd"
 COLOURS = {"proestrus": "r", "estrus": "b", "metestrus": "g", "diestrus": "k"}
 Y_LABELS = {
-    "muscle_thickness": "Normalised muscle thickness (mm mg$^{-1}$)",
-    "radius": "Normalised horn radius (mm mg$^{-1}$)",
-    "length": "Normalised horn length (mm mg$^{-1}$)",
+    "muscle_thickness": "Normalised muscle thickness\n (mm mg$^{-1}$)",
+    "radius": "Normalised horn radius\n (mm mg$^{-1}$)",
+    "length": "Normalised horn length\n (mm mg$^{-1}$)",
+    "endometrium_volume": "Normalised endometrium volume\n (mm$^3$ mg$^{-1}$)",
 }
 LEFT = 0.22
 BOTTOM = 0.17
