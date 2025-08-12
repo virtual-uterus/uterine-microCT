@@ -36,7 +36,7 @@ if __name__ == "__main__":
     parser.add_argument(
         "metric",
         type=str,
-        choices=["muscle_thickness", "radius", "length"],
+        choices=["muscle_thickness", "radius", "length", "endometrium_volume"],
         help="name of the metric to use",
     )
     parser.add_argument(
@@ -83,40 +83,30 @@ if __name__ == "__main__":
             split_nb = set_params["split_nb"]
 
             # Read metric data
-            metric_directory = os.path.join(
-                data_directory,
-                "muscle_segmentation/",
-            )
+            if args.metric == "endometrium_volume":
+                metric_directory = os.path.join(
+                    data_directory,
+                    "endometrium_segmentation/",
+                )
+            else:
+                metric_directory = os.path.join(
+                    data_directory,
+                    "muscle_segmentation/",
+                )
             metric_data = np.load(
                 metric_directory + args.metric + ".pkl",
                 allow_pickle=True,
             )
 
-            if args.metric == "length":
-                metrics[phase].append(
-                    np.round(
-                        [
-                            np.mean(list(metric_data.values())),
-                            np.std(list(metric_data.values())),
-                        ],
-                        2,
-                    ),
-                )
+            if args.metric == "length" or args.metric == "endometrium_volume":
+                metrics[phase].append(list(metric_data.values()))
             else:
                 mean_data = [
                     np.mean(list(metric_data.values())[0][split_nb:]),
                     np.mean(list(metric_data.values())[1][split_nb:]),
                 ]
-                std_data = [
-                    np.std(list(metric_data.values())[0][split_nb:]),
-                    np.std(list(metric_data.values())[1][split_nb:]),
-                ]
-
-                # Compute average std
-                std_mean = np.sqrt(sum(np.power(std_data, 2)) / len(std_data))
-
                 metrics[phase].append(
-                    np.round([np.mean(mean_data), std_mean], 2),
+                    np.round(mean_data, 2),
                 )
 
         metrics[phase] = np.array(metrics[phase])  # Convert to np array
