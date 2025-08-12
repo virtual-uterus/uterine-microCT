@@ -170,8 +170,7 @@ def plot_angular_thickness(slice_thickness, projection=False, uCT_flag=True):
             angle = np.deg2rad(25)
             plt.legend(
                 loc="lower left",
-                bbox_to_anchor=(0.5 + np.cos(angle) / 2,
-                                0.5 + np.sin(angle) / 2),
+                bbox_to_anchor=(0.5 + np.cos(angle) / 2, 0.5 + np.sin(angle) / 2),
             )
 
             plt.xticks(
@@ -228,15 +227,25 @@ def plot_data(data, metric):
     """
     fig, ax = plt.subplots(dpi=300)
 
+    markers = [".", "v", "*", "d"]
+
     for i, stage in enumerate(data.keys()):
         nb_samples = len(data[stage])
         np.random.seed(12)  # Reset random seed for all stages to be identical
-        jitter = np.random.uniform(-0.1, 0.1, nb_samples)
+
+        for sample in range(nb_samples):
+            jitter = np.random.uniform(-0.1, 0.1, 2)  # Only two horns
+            plt.scatter(
+                (i + 1) * np.ones(2) + jitter,
+                data[stage][sample],
+                c="k",
+                marker=markers[sample],
+            )
 
         plt.errorbar(
-            (i + 1) * np.ones(nb_samples) + jitter,
-            data[stage][:, 0],
-            data[stage][:, 1],
+            (i + 1),
+            np.mean(data[stage]),
+            np.std(data[stage]),
             c=COLOURS[stage],
             marker=".",
             linestyle="",
