@@ -1,0 +1,9 @@
+#!/bin/bash
+
+# List of metrics
+metrics=("muscle_thickness" "radius" "endometrium_volume" "length")
+
+# Loop over each metric and call Rscript
+for metric in "${metrics[@]}"; do
+    Rscript statistical-analysis.R uterine-microCT/data/exports "$metric"
+done
