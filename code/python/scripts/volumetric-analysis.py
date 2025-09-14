@@ -1,9 +1,9 @@
 #!/usr/bin/env python3
 # -*- coding: utf-8 -*-
 """
-endometrium-analysis.py
+volumetric-analysis.py
 
-Script to analyse endometrium volume in uterine horns
+Script to analyse endometrium and myometrium volume in uterine horns
 Author: Mathias Roesler
 Date: 07/25
 """
@@ -13,17 +13,14 @@ import os
 import pickle
 
 import numpy as np
-import scipy.io
 
-import thickness.plots as plots
-import thickness.projection as projection
 import thickness.utils as utils
 
 from thickness.constants import BASE, HOME
 
 if __name__ == "__main__":
     parser = argparse.ArgumentParser(
-        description="Determines the volume of the endometrium from uCT data"
+        description="Determines endometrium and myometrium volume from uCT"
     )
 
     parser.add_argument(
@@ -90,42 +87,49 @@ if __name__ == "__main__":
     weight = params["weight"] * 1e-3  # Weight in mg for normalisation
     resolution = params["resolution"] * 1e-3  # In mm
 
-    # Add the endometrium segmentation to the load directory
-    load_directory = os.path.join(load_directory, "endometrium_segmentation")
+    data_type = ["endometrium", "muscle"]
 
-    # Convert both to left and right
-    if args.horn == "both":
-        horns = ["left", "right"]
+    for data in data_type:
+        # Add the data_type segmentation to the load directory
+        data_load_directory = os.path.join(
+            load_directory,
+            data + "_segmentation",
+        )
 
-    else:
-        horns = [args.horn]
-
-    volume_dict = dict()
-
-    for i, horn in enumerate(horns):
-        if args.switch:
-            print_horn = horns[i - 1]
+        # Convert both to left and right
+        if args.horn == "both":
+            horns = ["left", "right"]
 
         else:
-            print_horn = horn
+            horns = [args.horn]
 
-        print("Processing {} horn".format(print_horn))
-        print("   Loading mask stack")
-        mask_stack = utils.load_image_stack(
-            os.path.join(load_directory, "{}".format(horn)),
-            extension=args.extension,
-        )
+        volume_dict = dict()
 
-        nb_endo_pixels = np.sum(mask_stack[:, :, split_nb:] >= 1)
-        endometrium_volume = nb_endo_pixels * (resolution**3)
-        volume_dict[print_horn] = endometrium_volume / weight
+        for i, horn in enumerate(horns):
+            if args.switch:
+                print_horn = horns[i - 1]
 
-        print(
-            "{} horn endometrium volume: {:.2f} mm3/mg".format(
-                print_horn,
-                endometrium_volume / weight,
+            else:
+                print_horn = horn
+
+            print("Processing {} horn".format(print_horn))
+            print("   Loading mask stack")
+            mask_stack = utils.load_image_stack(
+                os.path.join(data_load_directory, "{}".format(horn)),
+                extension=args.extension,
             )
-        )
 
-    with open(load_directory + "/endometrium_volume.pkl", "wb") as f:
-        pickle.dump(volume_dict, f)
+            nb_pixels = np.sum(mask_stack[:, :, split_nb:] >= 1)
+            volume = nb_pixels * (resolution**3)
+            volume_dict[print_horn] = volume / weight
+
+            print(
+                "{} horn {} volume: {:.2f} mm3/mg".format(
+                    print_horn,
+                    data,
+                    volume / weight,
+                )
+            )
+
+        with open(data_load_directory + "/" + data + "_volume.pkl", "wb") as f:
+            pickle.dump(volume_dict, f)
