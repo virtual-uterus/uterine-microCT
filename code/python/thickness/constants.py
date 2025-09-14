@@ -18,6 +18,7 @@ Y_LABELS = {
     "radius": "Normalised horn radius\n (mm mg$^{-1}$)",
     "length": "Normalised horn length\n (mm mg$^{-1}$)",
     "endometrium_volume": "Normalised endometrium volume\n (mm$^3$ mg$^{-1}$)",
+    "muscle_volume": "Normalised myometrium volume\n (mm$^3$ mg$^{-1}$)",
 }
 LEFT = 0.22
 BOTTOM = 0.17
