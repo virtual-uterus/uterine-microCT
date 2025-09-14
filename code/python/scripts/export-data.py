@@ -37,7 +37,13 @@ if __name__ == "__main__":
     parser.add_argument(
         "metric",
         type=str,
-        choices=["muscle_thickness", "radius", "length", "endometrium_volume"],
+        choices=[
+            "muscle_volume",
+            "muscle_thickness",
+            "radius",
+            "length",
+            "endometrium_volume",
+        ],
         help="name of the metric to use",
     )
     parser.add_argument(
@@ -102,9 +108,7 @@ if __name__ == "__main__":
                 allow_pickle=True,
             )
 
-            if args.metric == "length" or args.metric == "endometrium_volume":
-                value_list.append(np.mean(list(metric_data.values())))
-            else:
+            if args.metric == "muscle_thickness" or args.metric == "radius":
                 value_list.append(
                     np.mean(
                         [
@@ -113,6 +117,8 @@ if __name__ == "__main__":
                         ]
                     )
                 )
+            else:
+                value_list.append(np.mean(list(metric_data.values())))
 
     # Create data frame and export to csv for R
     df = pd.DataFrame(

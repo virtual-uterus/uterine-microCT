@@ -36,7 +36,13 @@ if __name__ == "__main__":
     parser.add_argument(
         "metric",
         type=str,
-        choices=["muscle_thickness", "radius", "length", "endometrium_volume"],
+        choices=[
+            "muscle_volume",
+            "muscle_thickness",
+            "radius",
+            "length",
+            "endometrium_volume",
+        ],
         help="name of the metric to use",
     )
     parser.add_argument(
@@ -98,9 +104,7 @@ if __name__ == "__main__":
                 allow_pickle=True,
             )
 
-            if args.metric == "length" or args.metric == "endometrium_volume":
-                metrics[phase].append(list(metric_data.values()))
-            else:
+            if args.metric == "muscle_thickness" or args.metric == "radius":
                 mean_data = [
                     np.mean(list(metric_data.values())[0][split_nb:]),
                     np.mean(list(metric_data.values())[1][split_nb:]),
@@ -108,6 +112,8 @@ if __name__ == "__main__":
                 metrics[phase].append(
                     np.round(mean_data, 2),
                 )
+            else:
+                metrics[phase].append(list(metric_data.values()))
 
         metrics[phase] = np.array(metrics[phase])  # Convert to np array
     plot_data(metrics, args.metric)
