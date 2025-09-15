@@ -109,6 +109,7 @@ get_label <- function(metric) {
   label <- switch(metric,
     "muscle_thickness" = expression("Normalised muscle thickness (mm mg"^-1 * ")"),
     "endometrium_volume" = expression("Normalised endometrium volume (mm"^3 * " mg"^-1 * ")"),
+    "muscle_volume" = expression("Normalised myometrium volume (mm"^3 * " mg"^-1 * ")"),
     "length" = expression("Normalised horn length (mm mg"^-1 * ")"),
     "radius" = expression("Normalised horn radius (mm mg"^-1 * ")"),
     "Unknown Metric" # Fallback for metrics not listed
