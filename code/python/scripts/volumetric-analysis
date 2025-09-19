@@ -1,0 +1,10 @@
+#!/bin/bash
+
+# List of datasets
+datasets=("AWA026" "AWB009" "AWB018" "AWA033" "AWB019" "AWB017"
+  "AWB008" "AWB020" "AWB011" "AWB003" "AWB012" "AWA030")
+
+# Loop over each dataset and call python script
+for dataset in "${datasets[@]}"; do
+  python3 volumetric-analysis.py uterine-microCT/data "${dataset}_PTA_1_Rec_Trans"
+done
