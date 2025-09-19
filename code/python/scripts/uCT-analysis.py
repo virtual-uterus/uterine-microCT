@@ -226,6 +226,7 @@ if __name__ == "__main__":
         # Normalise by weight
         normalised_thickness[print_horn] = avg_thickness[print_horn] / weight
         radius_dict[print_horn] /= weight
+        length_dict[print_horn] /= weight
 
     # Save angular thickness
     with open(load_directory + "/angular_thickness.pkl", "wb") as f:
