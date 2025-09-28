@@ -23,8 +23,8 @@ split_nb=93 # Slice number after which horns are independant
 nb_used_slices=5 # Number of slices for finding centre vectors
 
 # Region of interest (for upsampling)
-xlim = [1, 613] 
-ylim = [1, 613]
+xlim = [170, 400] 
+ylim = [150, 550]
 
 # Animal weight for normalisation
 weight=245 # in grams

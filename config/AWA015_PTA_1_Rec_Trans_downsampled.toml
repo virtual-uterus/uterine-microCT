@@ -26,6 +26,9 @@ nb_used_slices=1 # Number of slices for finding centre vectors
 xlim = [158, 375]
 ylim = [175, 788]
 
+# Animal weight for normalisation
+weight=320 # in grams
+
 # Segmentation parameters
 [segmentation]
 
