@@ -5,7 +5,8 @@ suppressPackageStartupMessages(library(tidyverse))
 suppressPackageStartupMessages(library(ggplot2))
 suppressPackageStartupMessages(library(ggsignif))
 suppressPackageStartupMessages(library(ggpattern))
-suppressPackageStartupMessages(library(emmeans))
+suppressPackageStartupMessages(library(rstatix))
+
 
 # Function to plot the statistical analysis results
 plot_anova_results <- function(data, model, metric) {
@@ -59,28 +60,21 @@ plot_anova_results <- function(data, model, metric) {
     scale_colour_brewer(palette = "Set1") +
     coord_cartesian(ylim = c(y_min, NA))
 
-  # Extract pairwise comparisons from the model
-  pairwise_comparisons <- emmeans::emmeans(model, pairwise ~ Phase)
-  comparison_results <- as.data.frame(pairwise_comparisons$contrasts)
-  comparison_results <- comparison_results[rev(
-    seq_len(nrow(comparison_results))
-  ), ]
+  # Pairwise comparison
+  comparison_results <- games_howell_test(Value ~ Phase, data = data)
 
-  # Map p-values to stars
-  comparison_results <- comparison_results %>%
-    mutate(stars = case_when(
-      p.value < 0.05 ~ "*",
-    ))
-
-  # Check if there are significant comparisons (excluding NA values)
+  # Keep only significant results
   significant_comparisons <- comparison_results %>%
-    filter(!is.na(stars) & stars != "")
+    filter(p.adj < 0.05) %>%
+    mutate(stars = "*")
+
+  # Prepare list of comparisons for geom_signif
   comparisons <- significant_comparisons %>%
-    mutate(contrast = strsplit(as.character(contrast), " - ")) %>%
-    pull(contrast)
+    select(group1, group2) %>%
+    pmap(~ c(..1, ..2)) # list of character vectors
 
   if (nrow(significant_comparisons) > 0) {
-    offset <- y_max * 0.018 * (nrow(significant_comparisons)) # Adjust offset based on the number of bars
+    offset <- y_max * 0.05 * (nrow(significant_comparisons)) # Adjust offset based on the number of bars
 
     # Generate y_positions for each comparison
     bar_positions <- y_max + seq_len(nrow(significant_comparisons)) * offset
@@ -89,7 +83,7 @@ plot_anova_results <- function(data, model, metric) {
     p <- p + geom_signif(
       comparisons = comparisons,
       annotations = significant_comparisons$stars,
-      map_signif_level = FALSE,
+      map_signif_level = TRUE,
       textsize = 5,
       tip_length = 0.02, # Controls the length of the brackets
       y_position = bar_positions,

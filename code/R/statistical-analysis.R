@@ -9,6 +9,9 @@ suppressPackageStartupMessages(library(ggplot2))
 suppressPackageStartupMessages(library(ggsignif))
 suppressPackageStartupMessages(library(emmeans))
 suppressPackageStartupMessages(library(car))
+suppressPackageStartupMessages(library(FSA))
+suppressPackageStartupMessages(library(rstatix))
+
 
 # Source other scripts
 source("utils.R")
@@ -37,9 +40,13 @@ metric <- args$metric
 file_path <- file.path(data_dir, paste0(metric, ".csv"))
 data <- load_metric(file_path)
 
-model <- aov(Value ~ Phase, data = data)
-pairwise_comparisons <- emmeans::emmeans(model, pairwise ~ Phase)
-print(pairwise_comparisons)
+# One-away ANOVA test
+model <- oneway.test(Value ~ Phase, data = data, var.equal = FALSE)
+print(model)
+
+# Post-hoc Games-Howell test
+games_howellresult <- games_howell_test(Value ~ Phase, data = data)
+print(games_howellresult)
 
 # Plot results
 plot_anova_results(data, model, metric)
