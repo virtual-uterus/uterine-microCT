@@ -1,0 +1,11 @@
+#!/bin/bash
+
+# List of datasets
+metrics=("endometrium_volume" "muscle_thickness" "muscle_volume" "radius"
+  "length")
+
+# Loop over each dataset and call python script
+for metric in "${metrics[@]}"; do
+    python3 export-data.py uterine-microCT/data estrus_config "${metric}"
+done
+
